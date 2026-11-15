@@ -139,7 +139,7 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Décision** (`src/game/revision.ts`) :
   - `affiche` : le mot reste visible.
   - `cache-3s` : le mot est visible 3 s après son apparition, puis remplacé par des tirets bas de même longueur. Les lettres déjà tapées restent visibles.
-  - `dictee` : le mot n'est jamais affiché. Aucune source audio n'est branchée : c'est la question ouverte sur la dictée.
+  - `dictee` : le mot n'est jamais affiché. Il est lu à voix haute (D-024).
 - **Conséquences** : le mot masqué n'est jamais écrit dans le DOM (seulement des tirets bas).
 
 ## D-022 — Jeu : première liste, mots bloqués retirés à la lecture
@@ -153,3 +153,10 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : le parent colle une liste de mots, avec des fautes de saisie possibles.
 - **Décision** : découpe par retour à la ligne, virgule ou point-virgule. Chaque mot est normalisé comme les mots bloqués (`normalizeWord`), les doublons sont retirés, et les saisies refusées sont comptées dans la notice. Rien n'est silencieusement modifié.
 - **Conséquences** : un mot refusé (chiffre, espace) n'entre pas dans la liste ; le parent le voit dans la notice.
+
+## D-024 — Dictée : synthèse vocale du Mac, aucune donnée ne sort
+- **Date** : 2026-11-15
+- **Contexte** : la dictée doit faire entendre le mot. Choix de l'humain : la voix du Mac.
+- **Décision** (`src/audio/speech.ts`) : la lecture passe par la synthèse vocale du navigateur, en `fr-FR`, avec une voix française installée si elle existe. Le mot est lu au début de chaque mot et sur demande (« Réécouter »). La lecture s'arrête en quittant l'écran.
+- **Conséquences** : sur Safari macOS, les voix sont celles du système : la lecture est locale. Aucun enregistrement à gérer. Si la synthèse n'est pas disponible, la dictée reste jouable sans son (le bouton ne fait rien).
+- **Question ouverte** : le choix de la voix (qualité, voix française disponible sur le Mac) reste à vérifier sur la machine réelle.

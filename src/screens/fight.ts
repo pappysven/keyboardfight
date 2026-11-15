@@ -10,6 +10,7 @@ import { loadSettings } from '../storage/settings-repo';
 import { loadProgression, saveProgression } from '../storage/progression-repo';
 import { loadBlockedWords } from '../storage/blocked-repo';
 import { loadRevisionLists } from '../storage/revision-repo';
+import { speak, stopSpeaking } from '../audio/speech';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 
@@ -50,6 +51,17 @@ export const fightScreen: Screen = {
     const word = h('p', { className: 'word', 'aria-live': 'off' });
     const feedback = h('p', { className: 'feedback', role: 'status' }, ' ');
     const pauseSlot = h('div', { className: 'pause-slot' });
+    /** Dictée seulement : relecture du mot. Hors tabulation pour ne pas interférer avec la frappe. */
+    const replay = h(
+      'button',
+      {
+        className: 'btn btn--small',
+        tabindex: '-1',
+        hidden: mode !== 'dictee',
+        onClick: () => speak(state.target),
+      },
+      'Réécouter',
+    );
     const poseBar = h(
       'div',
       { className: 'pose-bar', 'aria-label': 'Poses de test' },
@@ -66,6 +78,7 @@ export const fightScreen: Screen = {
         stage,
         hp,
         word,
+        replay,
         feedback,
         pauseSlot,
         status,
@@ -100,6 +113,7 @@ export const fightScreen: Screen = {
       if (mode === 'cache-3s') {
         hideTimer = window.setTimeout(render, HIDE_DELAY_MS);
       }
+      if (mode === 'dictee') speak(state.target);
     }
 
     function announce(events: CombatEvent[]): void {
@@ -129,6 +143,7 @@ export const fightScreen: Screen = {
       window.clearTimeout(pauseTimer);
       window.clearTimeout(hideTimer);
       window.removeEventListener('keydown', onKeydown);
+      stopSpeaking();
       const now = new Date().toISOString();
       const current = loadProgression(store, now);
       const { progression, unlocked } = recordSession(
@@ -164,6 +179,7 @@ export const fightScreen: Screen = {
     if (mode === 'cache-3s') {
       hideTimer = window.setTimeout(render, HIDE_DELAY_MS);
     }
+    if (mode === 'dictee') speak(state.target);
     if (settings.proposePause) {
       pauseTimer = window.setTimeout(showPause, settings.sessionMinutes * 60_000);
     }
@@ -188,6 +204,7 @@ export const fightScreen: Screen = {
       window.clearTimeout(pauseTimer);
       window.clearTimeout(hideTimer);
       window.removeEventListener('keydown', onKeydown);
+      stopSpeaking();
       player?.destroy();
       opponent?.destroy();
     };
