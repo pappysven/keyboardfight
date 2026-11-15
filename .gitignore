@@ -147,3 +147,11 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# --- KeyboardFight : données et sprites privés ---
+# Aucune donnée d'enfant, aucune liste de mots, aucun sprite privé dans le dépôt.
+/private/
+/data/
+/public/sprites/*
+!/public/sprites/placeholder/
+*.private.*
