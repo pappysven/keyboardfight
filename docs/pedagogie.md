@@ -40,4 +40,8 @@ Implémentation : `src/game/difficulty.ts` (`hpFloor`, `applyRiposte`), couverte
 
 ### Défaite
 
-Possible seulement en moyen et difficile. Son écran reste encourageant et propose de recommencer. Le détail relève du lot combat.
+Possible seulement en moyen et difficile, quand une riposte amène la vie à 0. Le combat s'arrête alors et l'écran de résultat s'affiche, avec un message encourageant : « Tu as tenu bon. On recommence quand tu veux. » Aucune touche n'a plus d'effet. En facile, la défaite n'arrive jamais (D-015).
+
+### Résultat
+
+L'écran de résultat montre la précision, le nombre de mots, les PERFECT et les combos de la session. Il ne montre aucune vitesse ni aucun temps. Les statistiques restent en mémoire : aucune donnée n'est enregistrée pour l'instant (D-015).

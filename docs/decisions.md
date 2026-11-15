@@ -88,3 +88,12 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : les règles doivent être testables sans navigateur ni horloge.
 - **Décision** : `src/game/combat.ts` reçoit chaque touche avec son horodatage (`timeMs`) et renvoie le nouvel état et les événements (`hit`, `combo`, `riposte`, `word-done`). L'écran fournit `performance.now()`.
 - **Conséquences** : les règles sont couvertes par des tests unitaires. L'écran de combat ne fait que l'affichage. Le mot de démonstration est fictif (`abcd`) ; la difficulté est fixée à « facile » tant que les réglages n'existent pas.
+
+## D-015 — Défaite et résultat : précision, sans vitesse ni enregistrement
+- **Date** : 2026-11-15
+- **Contexte** : l'enfant doit savoir où il en est, sans chrono ni jugement. La défaite ne doit exister qu'en moyen et difficile.
+- **Décision** :
+  - Le moteur émet `defeat` quand une riposte amène la vie à 0 ; aucune touche n'a plus d'effet ensuite. En facile, le plancher (D-009) rend cet événement impossible.
+  - L'écran de résultat affiche précision, mots, PERFECT et combos. Aucune vitesse, aucun temps.
+  - Les statistiques de session (`src/game/session.ts`) restent **en mémoire** : rien n'est enregistré avant le lot progression.
+- **Conséquences** : la précision est calculée comme bonnes touches / touches frappées (bonnes + fautes). Le lot progression devra persister ces agrégats, pas les frappes (AGENTS.md, règle 7).

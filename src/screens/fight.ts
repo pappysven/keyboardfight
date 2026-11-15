@@ -2,6 +2,7 @@ import { h } from '../app/dom';
 import type { Screen } from '../app/router';
 import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } from '../game/combat';
 import type { Difficulty } from '../data/types';
+import { accumulate, emptySession, setLastSession, type SessionStats } from '../game/session';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 
@@ -17,6 +18,7 @@ export const fightScreen: Screen = {
     let opponent: SpriteView | undefined;
     let cancelled = false;
     let state: CombatState = startCombat(DIFFICULTY, MAX_HP, DEMO_WORD);
+    let stats: SessionStats = emptySession();
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     const stage = h('div', { className: 'arena' });
@@ -46,7 +48,7 @@ export const fightScreen: Screen = {
         h(
           'div',
           { className: 'actions' },
-          h('button', { className: 'btn btn--primary', onClick: () => navigate('resultat') }, 'Terminer (provisoire)'),
+          h('button', { className: 'btn btn--primary', onClick: finish }, 'Terminer le combat'),
           h('button', { className: 'btn', onClick: () => navigate('accueil') }, 'Retour'),
         ),
       ),
@@ -68,8 +70,15 @@ export const fightScreen: Screen = {
         else if (event.type === 'combo') feedback.textContent = 'COMBO !';
         else if (event.type === 'word-done') {
           feedback.textContent = event.perfect ? 'PERFECT !' : 'Mot terminé. Bien joué.';
-        }
+        } else if (event.type === 'defeat') feedback.textContent = 'Le combat est terminé.';
       }
+    }
+
+    /** Enregistre la session en mémoire et passe à l'écran de résultat. */
+    function finish(): void {
+      window.removeEventListener('keydown', onKeydown);
+      setLastSession(stats);
+      navigate('resultat');
     }
 
     function onKeydown(event: KeyboardEvent): void {
@@ -77,7 +86,12 @@ export const fightScreen: Screen = {
       if (event.key.length !== 1) return;
       const step = keystroke(state, event.key, performance.now());
       state = step.state;
+      stats = accumulate(stats, step.events);
       announce(step.events);
+      if (step.events.some((e) => e.type === 'defeat')) {
+        finish();
+        return;
+      }
       if (step.events.some((e) => e.type === 'word-done')) {
         state = nextWord(state, DEMO_WORD);
       }

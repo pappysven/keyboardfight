@@ -33,7 +33,8 @@ export type CombatEvent =
   | { type: 'hit' }
   | { type: 'combo' }
   | { type: 'riposte'; damage: number }
-  | { type: 'word-done'; perfect: boolean };
+  | { type: 'word-done'; perfect: boolean }
+  | { type: 'defeat' };
 
 export interface CombatStep {
   state: CombatState;
@@ -65,6 +66,11 @@ export function nextWord(state: CombatState, target: string): CombatState {
 export function keystroke(state: CombatState, key: string, timeMs: number): CombatStep {
   const expected = state.target.charAt(state.index);
 
+  // Combat terminé (défaite) : plus aucun effet.
+  if (state.hp <= 0) {
+    return { state, events: [] };
+  }
+
   if (state.index >= state.target.length || expected === '') {
     return { state, events: [] };
   }
@@ -72,9 +78,11 @@ export function keystroke(state: CombatState, key: string, timeMs: number): Comb
   if (key !== expected) {
     const damage = Math.ceil(state.maxHp * RIPOSTE_DAMAGE_RATIO);
     const hp = applyRiposte(state.hp, damage, state.difficulty, state.maxHp);
+    const events: CombatEvent[] = [{ type: 'riposte', damage }];
+    if (hp <= 0) events.push({ type: 'defeat' });
     return {
       state: { ...state, hp, wordErrors: state.wordErrors + 1, streak: 0, lastCorrectAt: null },
-      events: [{ type: 'riposte', damage }],
+      events,
     };
   }
 

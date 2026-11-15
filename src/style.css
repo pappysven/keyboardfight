@@ -212,3 +212,30 @@ body {
   color: var(--color-info);
   font-weight: 700;
 }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 480px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-2);
+  background: var(--color-panel);
+  border: 3px solid var(--color-panel-edge);
+}
+
+.stat__value {
+  font-family: var(--font-hud);
+  font-size: 18px;
+  color: var(--color-gold);
+}
+
+.stat__label {
+  color: var(--color-muted);
+}

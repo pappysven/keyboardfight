@@ -144,3 +144,37 @@ describe('plancher de vie pendant la saisie', () => {
     expect(s.hp).toBe(0);
   });
 });
+
+describe('défaite', () => {
+  it('moyen : une riposte qui amène la vie à 0 déclenche la défaite', () => {
+    let s = startCombat('moyen', 20, WORD);
+    let defeated = false;
+    for (let i = 0; i < 10; i++) {
+      const step = keystroke(s, 'z', i * 100);
+      s = step.state;
+      if (step.events.some((e) => e.type === 'defeat')) defeated = true;
+    }
+    expect(defeated).toBe(true);
+    expect(s.hp).toBe(0);
+  });
+
+  it('après la défaite, plus aucune touche n’a d’effet', () => {
+    let s = startCombat('moyen', 1, WORD);
+    s = keystroke(s, 'z', 0).state;
+    expect(s.hp).toBe(0);
+    const after = keystroke(s, 'm', 100);
+    expect(after.events).toEqual([]);
+    expect(after.state).toBe(s);
+  });
+
+  it('facile : la défaite n’arrive jamais', () => {
+    let s = startCombat('facile', 20, WORD);
+    for (let i = 0; i < 20; i++) {
+      const step = keystroke(s, 'z', i * 100);
+      expect(step.events.some((e) => e.type === 'defeat')).toBe(false);
+      s = step.state;
+    }
+    expect(s.hp).toBeGreaterThan(0);
+  });
+});
+
