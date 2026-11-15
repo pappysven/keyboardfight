@@ -1,16 +1,14 @@
 import { h } from '../app/dom';
 import type { Screen } from '../app/router';
 import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } from '../game/combat';
-import type { Difficulty } from '../data/types';
 import { accumulate, emptySession, setLastSession, toSessionRecord, type SessionStats } from '../game/session';
 import { recordSession } from '../game/progression';
 import { createAppStore } from '../storage/store';
+import { loadSettings } from '../storage/settings-repo';
 import { loadProgression, saveProgression } from '../storage/progression-repo';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 
-/** Réglages provisoires tant que l'espace parent n'existe pas. */
-const DIFFICULTY: Difficulty = 'facile';
 const MAX_HP = 100;
 /** Mot de démonstration fictif : aucune liste réelle dans le dépôt (AGENTS.md). */
 const DEMO_WORD = 'abcd';
@@ -22,8 +20,10 @@ export const fightScreen: Screen = {
     let player: SpriteView | undefined;
     let opponent: SpriteView | undefined;
     let cancelled = false;
-    let state: CombatState = startCombat(DIFFICULTY, MAX_HP, DEMO_WORD);
+    const settings = loadSettings(createAppStore());
+    let state: CombatState = startCombat(settings.difficulty, MAX_HP, DEMO_WORD);
     let stats: SessionStats = emptySession();
+    let pauseTimer: number | undefined;
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     const stage = h('div', { className: 'arena' });
@@ -31,6 +31,7 @@ export const fightScreen: Screen = {
     const hp = h('div', { className: 'hp', 'aria-label': 'Vie' }, hpFill);
     const word = h('p', { className: 'word', 'aria-live': 'off' });
     const feedback = h('p', { className: 'feedback', role: 'status' }, ' ');
+    const pauseSlot = h('div', { className: 'pause-slot' });
     const poseBar = h(
       'div',
       { className: 'pose-bar', 'aria-label': 'Poses de test' },
@@ -48,6 +49,7 @@ export const fightScreen: Screen = {
         hp,
         word,
         feedback,
+        pauseSlot,
         status,
         poseBar,
         h(
@@ -79,8 +81,21 @@ export const fightScreen: Screen = {
       }
     }
 
+    /** Pause proposée, jamais imposée : le combat continue si l'enfant ne la prend pas. */
+    function showPause(): void {
+      pauseSlot.replaceChildren(
+        h(
+          'div',
+          { className: 'pause', role: 'status' },
+          h('p', {}, 'Pause proposée : tu peux souffler un moment, ou continuer.'),
+          h('button', { className: 'btn btn--small', onClick: () => pauseSlot.replaceChildren() }, 'Continuer'),
+        ),
+      );
+    }
+
     /** Enregistre la session en mémoire et passe à l'écran de résultat. */
     function finish(): void {
+      window.clearTimeout(pauseTimer);
       window.removeEventListener('keydown', onKeydown);
       const now = new Date().toISOString();
       const store = createAppStore();
@@ -115,6 +130,9 @@ export const fightScreen: Screen = {
 
     render();
     window.addEventListener('keydown', onKeydown);
+    if (settings.proposePause) {
+      pauseTimer = window.setTimeout(showPause, settings.sessionMinutes * 60_000);
+    }
 
     const url = new URL(`${import.meta.env.BASE_URL}sprites/placeholder/manifest.json`, window.location.href);
     loadManifest(url)
@@ -133,6 +151,7 @@ export const fightScreen: Screen = {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(pauseTimer);
       window.removeEventListener('keydown', onKeydown);
       player?.destroy();
       opponent?.destroy();
