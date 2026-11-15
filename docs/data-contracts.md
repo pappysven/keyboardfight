@@ -60,7 +60,7 @@ Les types sont dans `src/data/types.ts`. Ce fichier est la référence de code ;
   ```json
   { "algo": "PBKDF2-SHA256", "iterations": 310000, "salt": "<base64>", "hash": "<base64>" }
   ```
-  **Le code parent n'est jamais stocké en clair.** Le mécanisme complet relève du lot « espace parent ».
+  **Le code parent n'est jamais stocké en clair.** Hachage PBKDF2-SHA256, 310 000 itérations, sel de 16 octets. Code de 4 caractères minimum.
 
 ## Progression — `kf.progression`
 

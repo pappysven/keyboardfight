@@ -109,3 +109,26 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : la progression doit survivre au rechargement, sans garder de trace des frappes (AGENTS.md, règle 7).
 - **Décision** : `kf.progression` (localStorage, via `src/storage/store.ts`) contient, par étape, la date de déblocage et la liste des sessions (`endedAt`, `keystrokes`, `correct`, `precision`). Un chargement illisible repart de l'état initial, sans erreur. Les statistiques de la session en cours (écran de résultat) ne sont pas persistées.
 - **Conséquences** : le lot espace parent devra pouvoir remettre la progression à zéro. Le format de `docs/data-contracts.md` est inchangé.
+
+## D-018 — Code parent : PBKDF2 local, déverrouillé pour une visite
+- **Date** : 2026-11-15
+- **Contexte** : l'espace parent doit être protégé d'un clic malheureux de l'enfant. Rien ne quitte l'appareil.
+- **Décision** :
+  - Code de 4 caractères minimum, haché en PBKDF2-SHA256 (310 000 itérations, sel aléatoire de 16 octets). Seul le hachage est stocké (`src/parent/code.ts`).
+  - Le déverrouillage vaut pour la visite : quitter l'écran re-verrouille. Il ne survit pas au rechargement.
+- **Conséquences** : c'est une protection de confort, pas une sécurité contre une personne déterminée (le code est local). Pas de récupération : un code oublié se remet à zéro en effaçant les données du navigateur. À documenter pour le parent.
+
+## D-019 — Réglages appliqués au combat ; pause proposée, jamais imposée
+- **Date** : 2026-11-15
+- **Contexte** : difficulté, durée de session et pause sont réglés par le parent (docs/pedagogie.md).
+- **Décision** :
+  - La difficulté du combat vient de `kf.settings`.
+  - Une fois la durée écoulée, si la pause est activée, un bandeau propose une pause avec un bouton « Continuer ». Le combat n'est jamais arrêté ni bloqué.
+  - Pas de compte à rebours affiché.
+- **Conséquences** : la durée réglée n'arrête pas la session ; elle sert seulement à déclencher la proposition.
+
+## D-020 — Mots bloqués : saisie normalisée, pas encore utilisés
+- **Date** : 2026-11-15
+- **Contexte** : le parent doit pouvoir écarter des mots, en attendant les listes de révision.
+- **Décision** : saisie en minuscules, sans espaces autour, 40 caractères au plus, lettres / tiret / apostrophe uniquement (`src/game/blocked-words.ts`). Un doublon ne change rien. Les exercices n'utilisent pas encore la liste.
+- **Conséquences** : le lot listes de révision devra filtrer les mots bloqués. Le texte de l'écran le précise au parent.
