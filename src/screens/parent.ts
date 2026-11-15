@@ -1,10 +1,12 @@
 import { h } from '../app/dom';
 import type { Screen } from '../app/router';
-import type { Difficulty, Settings } from '../data/types';
+import type { Difficulty, DisplayMode, RevisionList, Settings } from '../data/types';
 import { addBlockedWord, normalizeWord, removeBlockedWord, MAX_WORD_LENGTH } from '../game/blocked-words';
 import { emptyProgression } from '../game/progression';
 import { createParentCode, PARENT_CODE_MIN_LENGTH, verifyParentCode } from '../parent/code';
 import { loadBlockedWords, saveBlockedWords } from '../storage/blocked-repo';
+import { loadRevisionLists, saveRevisionLists } from '../storage/revision-repo';
+import { createList, DISPLAY_LABELS, DISPLAY_MODES, parseWordsInput, removeList } from '../game/revision';
 import { loadSettings, saveSettings } from '../storage/settings-repo';
 import { saveProgression } from '../storage/progression-repo';
 import { createAppStore, type Store } from '../storage/store';
@@ -28,6 +30,11 @@ export const parentScreen: Screen = {
     const store: Store = createAppStore();
     let settings: Settings = loadSettings(store);
     let blocked = loadBlockedWords(store);
+    let lists: RevisionList[] = loadRevisionLists(store);
+    let formMode: DisplayMode = 'affiche';
+    // Saisie en cours de la liste : conservée entre deux rendus.
+    let formName = '';
+    let formWords = '';
     let error = '';
     let notice = '';
 
@@ -260,6 +267,112 @@ export const parentScreen: Screen = {
       );
     }
 
+    function revisionSection(): HTMLElement {
+      const name = textInput({ type: 'text', autocomplete: 'off', 'aria-label': 'Nom de la liste', maxlength: '60' });
+      name.value = formName;
+      name.addEventListener('input', () => {
+        formName = name.value;
+      });
+      const words = h('textarea', {
+        className: 'input input--area',
+        rows: '5',
+        autocomplete: 'off',
+        spellcheck: 'false',
+        'aria-label': 'Mots, un par ligne ou séparés par des virgules',
+      });
+      words.value = formWords;
+      words.addEventListener('input', () => {
+        formWords = words.value;
+      });
+      return h(
+        'section',
+        { className: 'panel-section', 'aria-labelledby': 'h-lists' },
+        h('h2', { className: 'section-title', id: 'h-lists' }, 'Listes de révision'),
+        h(
+          'form',
+          {
+            className: 'form',
+            onSubmit: (e: Event) => {
+              e.preventDefault();
+              error = '';
+              notice = '';
+              const parsed = parseWordsInput(words.value);
+              const title = name.value.trim();
+              if (title === '') {
+                error = 'Donne un nom à la liste.';
+              } else if (parsed.words.length === 0) {
+                error = 'Aucun mot valide (lettres, tiret, apostrophe ; 40 caractères max).';
+              } else {
+                lists = createList(
+                  lists,
+                  { id: `l-${Date.now().toString(36)}`, name: title, displayMode: formMode, words: parsed.words },
+                  new Date().toISOString(),
+                );
+                saveRevisionLists(store, lists);
+                formName = '';
+                formWords = '';
+                notice = parsed.rejected.length > 0
+                  ? `Liste créée. ${parsed.rejected.length} saisie(s) refusée(s).`
+                  : 'Liste créée.';
+              }
+              render();
+            },
+          },
+          field('Nom', name),
+          h('p', { className: 'label' }, 'Affichage du mot'),
+          h(
+            'div',
+            { className: 'chips' },
+            ...DISPLAY_MODES.map((m) =>
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'btn btn--small',
+                  'aria-pressed': String(formMode === m),
+                  onClick: () => {
+                    formMode = m;
+                    render();
+                  },
+                },
+                DISPLAY_LABELS[m],
+              ),
+            ),
+          ),
+          field('Mots', words),
+          h('button', { className: 'btn btn--primary', type: 'submit' }, 'Créer la liste'),
+        ),
+        lists.length === 0
+          ? h('p', { className: 'label' }, 'Aucune liste.')
+          : h(
+              'ul',
+              { className: 'word-list' },
+              ...lists.map((l) =>
+                h(
+                  'li',
+                  { className: 'word-list__item' },
+                  h('span', {}, `${l.name} · ${DISPLAY_LABELS[l.displayMode]} · ${l.words.length} mot(s)`),
+                  h(
+                    'button',
+                    {
+                      className: 'btn btn--small',
+                      onClick: () => {
+                        if (!window.confirm(`Supprimer la liste « ${l.name} » ?`)) return;
+                        lists = removeList(lists, l.id);
+                        saveRevisionLists(store, lists);
+                        notice = 'Liste supprimée.';
+                        error = '';
+                        render();
+                      },
+                    },
+                    'Supprimer',
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
     function progressionSection(): HTMLElement {
       return h(
         'section',
@@ -287,6 +400,7 @@ export const parentScreen: Screen = {
       return [
         settingsSection(),
         blockedSection(),
+        revisionSection(),
         progressionSection(),
         h(
           'div',

@@ -132,6 +132,6 @@ Chaque session enregistrée :
 |---|---|---|
 | `"affiche"` | Le mot reste visible pendant la frappe | Premiers pas, mots nouveaux |
 | `"cache-3s"` | Le mot est visible 3 secondes, puis masqué | Mémorisation de l'orthographe |
-| `"dictee"` | Le mot n'est jamais affiché ; l'enfant tape ce qu'il entend | Dictée (source audio à choisir, voir questions ouvertes) |
+| `"dictee"` | Le mot n'est jamais affiché ; il est lu par la voix du Mac (D-024) | Dictée |
 
 - Les mots de l'enfant ne sont jamais copiés dans le dépôt, ni dans les tests, ni dans la documentation. Les tests utilisent des chaînes fictives.

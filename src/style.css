@@ -388,3 +388,9 @@ body {
 .pause p {
   margin: 0;
 }
+
+.input--area {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.4;
+}
