@@ -1,3 +1,4 @@
+import type { SessionRecord, TechniqueId } from '../data/types';
 import type { CombatEvent } from './combat';
 
 /**
@@ -53,13 +54,23 @@ export function precision(stats: SessionStats): number {
   return Math.round((stats.correct / stats.keystrokes) * 100) / 100;
 }
 
-let lastSession: SessionStats | null = null;
-
-/** Mémorise la dernière session pour l'écran de résultat (en mémoire seulement). */
-export function setLastSession(stats: SessionStats): void {
-  lastSession = stats;
+/** Convertit les statistiques en agrégat persistable : aucune frappe individuelle. */
+export function toSessionRecord(stats: SessionStats, endedAt: string): SessionRecord {
+  return { endedAt, keystrokes: stats.keystrokes, correct: stats.correct, precision: precision(stats) };
 }
 
-export function getLastSession(): SessionStats | null {
+export interface SessionResult {
+  stats: SessionStats;
+  unlocked: TechniqueId[];
+}
+
+let lastSession: SessionResult | null = null;
+
+/** Mémorise la dernière session pour l'écran de résultat (en mémoire seulement). */
+export function setLastSession(result: SessionResult): void {
+  lastSession = result;
+}
+
+export function getLastSession(): SessionResult | null {
   return lastSession;
 }

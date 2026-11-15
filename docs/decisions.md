@@ -97,3 +97,15 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
   - L'écran de résultat affiche précision, mots, PERFECT et combos. Aucune vitesse, aucun temps.
   - Les statistiques de session (`src/game/session.ts`) restent **en mémoire** : rien n'est enregistré avant le lot progression.
 - **Conséquences** : la précision est calculée comme bonnes touches / touches frappées (bonnes + fautes). Le lot progression devra persister ces agrégats, pas les frappes (AGENTS.md, règle 7).
+
+## D-016 — Critère de maîtrise : 3 dernières sessions, chacune ≥ 90 %
+- **Date** : 2026-11-15
+- **Contexte** : docs/progression.md dit « précision ≥ 90 % sur 3 sessions » sans préciser « consécutives » ou non.
+- **Décision** : une étape est maîtrisée si ses 3 **dernières** sessions ont chacune une précision ≥ 0,90. Implémenté dans `isMastered` (`src/game/progression.ts`). Une étape dont les prérequis sont maîtrisés s'ouvre, et ne se referme jamais.
+- **Statut** : **provisoire**. L'humain doit confirmer ou changer la règle (question ouverte de la PR).
+
+## D-017 — Persistance : agrégats de session dans kf.progression
+- **Date** : 2026-11-15
+- **Contexte** : la progression doit survivre au rechargement, sans garder de trace des frappes (AGENTS.md, règle 7).
+- **Décision** : `kf.progression` (localStorage, via `src/storage/store.ts`) contient, par étape, la date de déblocage et la liste des sessions (`endedAt`, `keystrokes`, `correct`, `precision`). Un chargement illisible repart de l'état initial, sans erreur. Les statistiques de la session en cours (écran de résultat) ne sont pas persistées.
+- **Conséquences** : le lot espace parent devra pouvoir remettre la progression à zéro. Le format de `docs/data-contracts.md` est inchangé.

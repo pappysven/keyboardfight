@@ -1,6 +1,7 @@
 import { h } from '../app/dom';
 import type { Screen } from '../app/router';
 import { getLastSession, precision, type SessionStats } from '../game/session';
+import { TECHNIQUE_LABELS } from '../game/progression';
 
 /** Message encourageant : jamais de jugement sur la vitesse. */
 function message(stats: SessionStats): string {
@@ -15,14 +16,22 @@ function stat(label: string, value: string): HTMLElement {
 
 export const resultScreen: Screen = {
   mount(root, navigate) {
-    const stats = getLastSession();
-    const children: (HTMLElement | string)[] = [h('h1', { className: 'title' }, 'Résultat')];
+    const result = getLastSession();
+    const children: (HTMLElement | string | null)[] = [h('h1', { className: 'title' }, 'Résultat')];
 
-    if (!stats) {
+    if (!result) {
       children.push(h('p', { className: 'lead' }, 'Aucun combat à afficher. Lance une partie pour voir ton résultat.'));
     } else {
+      const stats = result.stats;
       children.push(
         h('p', { className: 'lead' }, message(stats)),
+        result.unlocked.length > 0
+          ? h(
+              'p',
+              { className: 'unlock', role: 'status' },
+              `Nouvelle étape débloquée : ${result.unlocked.map((id) => TECHNIQUE_LABELS[id]).join(', ')}`,
+            )
+          : null,
         h(
           'div',
           { className: 'stats' },

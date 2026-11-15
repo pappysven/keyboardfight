@@ -2,7 +2,10 @@ import { h } from '../app/dom';
 import type { Screen } from '../app/router';
 import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } from '../game/combat';
 import type { Difficulty } from '../data/types';
-import { accumulate, emptySession, setLastSession, type SessionStats } from '../game/session';
+import { accumulate, emptySession, setLastSession, toSessionRecord, type SessionStats } from '../game/session';
+import { recordSession } from '../game/progression';
+import { createAppStore } from '../storage/store';
+import { loadProgression, saveProgression } from '../storage/progression-repo';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 
@@ -11,6 +14,8 @@ const DIFFICULTY: Difficulty = 'facile';
 const MAX_HP = 100;
 /** Mot de démonstration fictif : aucune liste réelle dans le dépôt (AGENTS.md). */
 const DEMO_WORD = 'abcd';
+/** Étape travaillée tant que le choix d'étape n'existe pas. */
+const TRAINING_TECHNIQUE = 'repos' as const;
 
 export const fightScreen: Screen = {
   mount(root, navigate) {
@@ -77,7 +82,17 @@ export const fightScreen: Screen = {
     /** Enregistre la session en mémoire et passe à l'écran de résultat. */
     function finish(): void {
       window.removeEventListener('keydown', onKeydown);
-      setLastSession(stats);
+      const now = new Date().toISOString();
+      const store = createAppStore();
+      const current = loadProgression(store, now);
+      const { progression, unlocked } = recordSession(
+        current,
+        TRAINING_TECHNIQUE,
+        toSessionRecord(stats, now),
+        now,
+      );
+      saveProgression(store, progression);
+      setLastSession({ stats, unlocked });
       navigate('resultat');
     }
 
