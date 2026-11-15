@@ -23,9 +23,9 @@ Le combat est un jeu de combat en pixel art vu de côté. Chaque bonne touche es
 | Élément | Règle |
 |---|---|
 | **Coup** | Chaque bonne touche porte un coup à l'adversaire. |
-| **Combo** | 5 bonnes touches rapides d'affilée font un combo. Une faute coupe le combo. « Rapide » = intervalle entre deux touches ≤ 1,2 s (valeur provisoire, à calibrer). |
+| **Combo** | 5 bonnes touches rapides d'affilée font un combo. Une faute coupe le combo. « Rapide » = intervalle entre deux bonnes touches ≤ 1,2 s (valeur provisoire, D-012). |
 | **PERFECT** | Un mot tapé entièrement sans aucune faute. Indépendant de la vitesse. |
-| **Riposte** | Une erreur déclenche une riposte de l'adversaire, qui retire des PV à l'enfant. |
+| **Riposte** | Une erreur déclenche une riposte de l'adversaire, qui retire 10 % des PV max à l'enfant (valeur provisoire, D-013). |
 | **Plancher de vie** | La vie de l'enfant ne descend jamais sous le plancher de sa difficulté (ci-dessous). |
 
 ### Plancher de vie par difficulté
@@ -36,7 +36,7 @@ Le combat est un jeu de combat en pixel art vu de côté. Chaque bonne touche es
 | **Moyen** | 0 % | Une défaite est possible. |
 | **Difficile** | 0 % | Une défaite est possible. |
 
-Implémentation : `src/game/difficulty.ts` (`hpFloor`, `applyRiposte`), couverte par des tests.
+Implémentation : `src/game/difficulty.ts` (`hpFloor`, `applyRiposte`), couverte par des tests. Moteur de combat : `src/game/combat.ts` (D-014).
 
 ### Défaite
 

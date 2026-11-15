@@ -175,3 +175,40 @@ body {
     font-size: 17px;
   }
 }
+
+.hp {
+  width: 100%;
+  max-width: 480px;
+  height: 20px;
+  background: var(--color-panel);
+  border: 3px solid var(--color-panel-edge);
+}
+
+.hp__fill {
+  height: 100%;
+  width: 100%;
+  background: var(--color-primary);
+  transition: width 200ms steps(4);
+}
+
+.word {
+  font-family: var(--font-hud);
+  font-size: clamp(18px, 5vw, 28px);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.word__done {
+  color: var(--color-gold);
+}
+
+.word__todo {
+  color: var(--color-ink);
+}
+
+.feedback {
+  margin: 0;
+  min-height: 1.5em;
+  color: var(--color-info);
+  font-weight: 700;
+}
