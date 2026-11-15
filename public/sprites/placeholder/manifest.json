@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "id": "placeholder",
+  "name": "Provisoire (rectangles)",
+  "poses": {
+    "idle": {
+      "sheet": "sheet.png",
+      "frameCount": 2,
+      "frameDuration": 400,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "x": 32,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "punch": {
+      "sheet": "sheet.png",
+      "frameCount": 2,
+      "frameDuration": 120,
+      "frames": [
+        {
+          "x": 64,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "x": 96,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "kick": {
+      "sheet": "sheet.png",
+      "frameCount": 2,
+      "frameDuration": 120,
+      "frames": [
+        {
+          "x": 128,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "x": 160,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "special": {
+      "sheet": "sheet.png",
+      "frameCount": 2,
+      "frameDuration": 150,
+      "frames": [
+        {
+          "x": 192,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "x": 224,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "hit": {
+      "sheet": "sheet.png",
+      "frameCount": 1,
+      "frameDuration": 200,
+      "frames": [
+        {
+          "x": 256,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "win": {
+      "sheet": "sheet.png",
+      "frameCount": 2,
+      "frameDuration": 250,
+      "frames": [
+        {
+          "x": 288,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "x": 320,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    },
+    "ko": {
+      "sheet": "sheet.png",
+      "frameCount": 1,
+      "frameDuration": 300,
+      "frames": [
+        {
+          "x": 352,
+          "y": 0,
+          "w": 32,
+          "h": 32
+        }
+      ]
+    }
+  }
+}
