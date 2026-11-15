@@ -132,3 +132,24 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : le parent doit pouvoir écarter des mots, en attendant les listes de révision.
 - **Décision** : saisie en minuscules, sans espaces autour, 40 caractères au plus, lettres / tiret / apostrophe uniquement (`src/game/blocked-words.ts`). Un doublon ne change rien. Les exercices n'utilisent pas encore la liste.
 - **Conséquences** : le lot listes de révision devra filtrer les mots bloqués. Le texte de l'écran le précise au parent.
+
+## D-021 — Modes d'affichage : masquage côté jeu, dictée sans audio pour l'instant
+- **Date** : 2026-11-15
+- **Contexte** : une liste de révision a un mode d'affichage (docs/data-contracts.md).
+- **Décision** (`src/game/revision.ts`) :
+  - `affiche` : le mot reste visible.
+  - `cache-3s` : le mot est visible 3 s après son apparition, puis remplacé par des tirets bas de même longueur. Les lettres déjà tapées restent visibles.
+  - `dictee` : le mot n'est jamais affiché. Aucune source audio n'est branchée : c'est la question ouverte sur la dictée.
+- **Conséquences** : le mot masqué n'est jamais écrit dans le DOM (seulement des tirets bas).
+
+## D-022 — Jeu : première liste, mots bloqués retirés à la lecture
+- **Date** : 2026-11-15
+- **Contexte** : le choix de liste n'existe pas encore dans l'écran de combat.
+- **Décision** : le combat joue la première liste enregistrée, en retirant les mots bloqués (`playableWords`). Sans liste, le mot de démonstration `abcd` sert de repli. Les mots bloqués sont filtrés à la lecture, pas à l'écriture de la liste : un mot bloqué plus tard disparaît sans toucher à la liste.
+- **Statut** : **provisoire**, le choix de la liste à jouer viendra avec le lot suivant.
+
+## D-023 — Saisie des listes : normalisation et refus explicites
+- **Date** : 2026-11-15
+- **Contexte** : le parent colle une liste de mots, avec des fautes de saisie possibles.
+- **Décision** : découpe par retour à la ligne, virgule ou point-virgule. Chaque mot est normalisé comme les mots bloqués (`normalizeWord`), les doublons sont retirés, et les saisies refusées sont comptées dans la notice. Rien n'est silencieusement modifié.
+- **Conséquences** : un mot refusé (chiffre, espace) n'entre pas dans la liste ; le parent le voit dans la notice.
