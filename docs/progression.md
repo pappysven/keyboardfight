@@ -30,11 +30,18 @@ repos ───────────┤           │                 ├─�
 
 ## Critère de déblocage
 
-Une étape se débloque lorsque **toutes ses prérequises** ont atteint une précision **≥ 90 %** sur **3 sessions**.
+Une étape se débloque lorsque **toutes ses prérequises** sont maîtrisées : **précision ≥ 90 % sur chacune des 3 dernières sessions** de la prérequise.
 
-- Précision d'une session = touches justes / touches frappées.
+- Précision d'une session = touches justes / touches frappées (bonnes + fautes).
 - Aucun critère de vitesse.
-- « 3 sessions » : à préciser (3 consécutives, ou 3 parmi les 5 dernières). Voir les questions ouvertes de la PR.
+- Choix provisoire (D-016) : « 3 sessions » = les 3 dernières, consécutives. Reste à confirmer (question ouverte).
+- Une étape débloquée ne se referme jamais.
+
+## Enregistrement
+
+- Une session est enregistrée à la fin du combat, sur l'étape travaillée. Aujourd'hui, c'est la rangée de repos, en attendant le choix d'étape.
+- Une étape verrouillée ne reçoit pas de session.
+- Seuls les agrégats sont stockés (durée non, frappes individuelles non) : voir docs/data-contracts.md et D-017.
 
 ## Déblocage et rejeu
 

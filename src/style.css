@@ -239,3 +239,9 @@ body {
 .stat__label {
   color: var(--color-muted);
 }
+
+.unlock {
+  margin: 0;
+  color: var(--color-gold);
+  font-weight: 700;
+}
