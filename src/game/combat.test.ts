@@ -66,6 +66,27 @@ describe('saisie', () => {
     expect(next.target).toBe('autre');
     expect(next.hp).toBe(hurt.hp);
   });
+
+  it('la série de bonnes touches continue d’un mot à l’autre', () => {
+    // Mots de 2 lettres : le combo (5 touches) doit se former à cheval sur deux mots.
+    let s = startCombat('moyen', 100, 'ab');
+    const types: string[] = [];
+    let t = 0;
+    for (const key of ['a', 'b']) {
+      const step = keystroke(s, key, t);
+      types.push(...step.events.map((e) => e.type));
+      s = step.state;
+      t += 300;
+    }
+    s = nextWord(s, 'cde');
+    for (const key of ['c', 'd', 'e']) {
+      const step = keystroke(s, key, t);
+      types.push(...step.events.map((e) => e.type));
+      s = step.state;
+      t += 300;
+    }
+    expect(types).toContain('combo');
+  });
 });
 
 describe('combo', () => {

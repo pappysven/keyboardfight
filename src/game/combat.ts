@@ -53,9 +53,12 @@ export function startCombat(difficulty: Difficulty, maxHp: number, target: strin
   };
 }
 
-/** Passe au mot suivant : la vie et le plancher sont conservés, la saisie repart à zéro. */
+/**
+ * Passe au mot suivant : vie, plancher et série de bonnes touches sont conservés
+ * (le combo se compte « d'affilée », pas par mot). Seule la saisie repart à zéro.
+ */
 export function nextWord(state: CombatState, target: string): CombatState {
-  return { ...state, target, index: 0, wordErrors: 0, streak: 0, lastCorrectAt: null };
+  return { ...state, target, index: 0, wordErrors: 0 };
 }
 
 /** Traite une touche saisie à l'instant `timeMs`. Renvoie le nouvel état et les événements. */
