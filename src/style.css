@@ -175,3 +175,67 @@ body {
     font-size: 17px;
   }
 }
+
+.hp {
+  width: 100%;
+  max-width: 480px;
+  height: 20px;
+  background: var(--color-panel);
+  border: 3px solid var(--color-panel-edge);
+}
+
+.hp__fill {
+  height: 100%;
+  width: 100%;
+  background: var(--color-primary);
+  transition: width 200ms steps(4);
+}
+
+.word {
+  font-family: var(--font-hud);
+  font-size: clamp(18px, 5vw, 28px);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.word__done {
+  color: var(--color-gold);
+}
+
+.word__todo {
+  color: var(--color-ink);
+}
+
+.feedback {
+  margin: 0;
+  min-height: 1.5em;
+  color: var(--color-info);
+  font-weight: 700;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 480px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-2);
+  background: var(--color-panel);
+  border: 3px solid var(--color-panel-edge);
+}
+
+.stat__value {
+  font-family: var(--font-hud);
+  font-size: 18px;
+  color: var(--color-gold);
+}
+
+.stat__label {
+  color: var(--color-muted);
+}

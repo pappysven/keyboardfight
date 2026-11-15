@@ -70,3 +70,30 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : le code est écrit par Claude Code ; l'humain garde la main sur ce qui entre dans `main`.
 - **Décision** : Claude Code travaille sur une branche, ouvre une PR vers `main` et ne merge jamais.
 - **Conséquences** : voir AGENTS.md (rôles).
+
+## D-012 — Combo : 5 bonnes touches à moins de 1,2 s d'intervalle
+- **Date** : 2026-11-15
+- **Contexte** : le combo récompense la régularité sans punir la lenteur (pas de chrono punitif).
+- **Décision** : `COMBO_LENGTH = 5`, `COMBO_MAX_GAP_MS = 1200`, codés dans `src/game/combat.ts`. Une faute remet la série à zéro. Après un combo, la série repart à zéro.
+- **Statut** : **provisoire**, à calibrer sur l'enfant (question ouverte de la PR).
+
+## D-013 — Riposte : 10 % des PV max, PERFECT indépendant du temps
+- **Date** : 2026-11-15
+- **Contexte** : une erreur doit avoir une conséquence de jeu, sans jugement ni chrono.
+- **Décision** : une riposte retire `RIPOSTE_DAMAGE_RATIO = 0.1` des PV max, sous le plancher de la difficulté (D-009). Un PERFECT dépend uniquement de l'absence de faute sur le mot.
+- **Statut** : montant de la riposte **provisoire** (équilibrage à faire).
+
+## D-014 — Moteur de combat pur, sans DOM ni temps réel
+- **Date** : 2026-11-15
+- **Contexte** : les règles doivent être testables sans navigateur ni horloge.
+- **Décision** : `src/game/combat.ts` reçoit chaque touche avec son horodatage (`timeMs`) et renvoie le nouvel état et les événements (`hit`, `combo`, `riposte`, `word-done`). L'écran fournit `performance.now()`.
+- **Conséquences** : les règles sont couvertes par des tests unitaires. L'écran de combat ne fait que l'affichage. Le mot de démonstration est fictif (`abcd`) ; la difficulté est fixée à « facile » tant que les réglages n'existent pas.
+
+## D-015 — Défaite et résultat : précision, sans vitesse ni enregistrement
+- **Date** : 2026-11-15
+- **Contexte** : l'enfant doit savoir où il en est, sans chrono ni jugement. La défaite ne doit exister qu'en moyen et difficile.
+- **Décision** :
+  - Le moteur émet `defeat` quand une riposte amène la vie à 0 ; aucune touche n'a plus d'effet ensuite. En facile, le plancher (D-009) rend cet événement impossible.
+  - L'écran de résultat affiche précision, mots, PERFECT et combos. Aucune vitesse, aucun temps.
+  - Les statistiques de session (`src/game/session.ts`) restent **en mémoire** : rien n'est enregistré avant le lot progression.
+- **Conséquences** : la précision est calculée comme bonnes touches / touches frappées (bonnes + fautes). Le lot progression devra persister ces agrégats, pas les frappes (AGENTS.md, règle 7).
