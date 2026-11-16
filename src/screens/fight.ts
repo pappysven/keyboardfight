@@ -4,6 +4,7 @@ import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } 
 import { accumulate, emptySession, setLastSession, toSessionRecord, type SessionStats } from '../game/session';
 import { recordSession } from '../game/progression';
 import { playableWords, HIDE_DELAY_MS, visibleWord } from '../game/revision';
+import { activeList } from '../game/selection';
 import type { DisplayMode } from '../data/types';
 import { createAppStore } from '../storage/store';
 import { loadSettings } from '../storage/settings-repo';
@@ -29,11 +30,11 @@ export const fightScreen: Screen = {
     const store = createAppStore();
     const settings = loadSettings(store);
 
-    // Mots : première liste de révision (mots bloqués retirés), sinon le mot de démonstration.
-    const firstList = loadRevisionLists(store)[0];
-    const mode: DisplayMode = firstList?.displayMode ?? 'affiche';
-    const pool = firstList
-      ? playableWords(firstList.words, loadBlockedWords(store))
+    // Mots : liste choisie à l'accueil (mots bloqués retirés), sinon le mot de démonstration.
+    const chosen = activeList(loadRevisionLists(store));
+    const mode: DisplayMode = chosen?.displayMode ?? 'affiche';
+    const pool = chosen
+      ? playableWords(chosen.words, loadBlockedWords(store))
       : [];
     const words = pool.length > 0 ? pool : [DEMO_WORD];
     let wordIndex = 0;
@@ -74,7 +75,7 @@ export const fightScreen: Screen = {
       h(
         'main',
         { className: 'screen screen--fight' },
-        h('p', { className: 'hud' }, 'COMBAT'),
+        h('p', { className: 'hud' }, chosen ? `COMBAT · ${chosen.name}` : 'COMBAT'),
         stage,
         hp,
         word,
