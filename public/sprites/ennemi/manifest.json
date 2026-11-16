@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "ennemi",
-  "name": "Gardien",
+  "name": "Gardien de nuit",
   "poses": {
     "idle": {
       "sheet": "sheet.png",

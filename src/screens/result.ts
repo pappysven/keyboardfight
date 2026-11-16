@@ -5,9 +5,9 @@ import { TECHNIQUE_LABELS } from '../game/progression';
 import type { CombatOutcome } from '../game/boss';
 
 /** Message encourageant : jamais de jugement sur la vitesse. */
-function message(stats: SessionStats, outcome: CombatOutcome): string {
-  if (outcome === 'victory') return 'Le Gardien est vaincu. Bravo !';
-  if (outcome === 'enemy-wins') return 'Le Gardien gagne cette fois : la liste est finie. On recommence quand tu veux.';
+function message(stats: SessionStats, outcome: CombatOutcome, enemy: string): string {
+  if (outcome === 'victory') return `Le ${enemy} est vaincu. Bravo !`;
+  if (outcome === 'enemy-wins') return `Le ${enemy} gagne cette fois : la liste est finie. On recommence quand tu veux.`;
   if (stats.defeat) return 'Tu as tenu bon. On recommence quand tu veux.';
   if (stats.perfects > 0) return 'Des mots sans faute : c’est exactement ce qu’on cherche.';
   return 'Bonne session. Chaque touche juste compte.';
@@ -27,7 +27,7 @@ export const resultScreen: Screen = {
     } else {
       const stats = result.stats;
       children.push(
-        h('p', { className: 'lead' }, message(stats, result.outcome)),
+        h('p', { className: 'lead' }, message(stats, result.outcome, result.enemyName)),
         result.unlocked.length > 0
           ? h(
               'p',
