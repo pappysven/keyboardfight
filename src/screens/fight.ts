@@ -142,15 +142,38 @@ export const fightScreen: Screen = {
       else opponentPoseTimer = timer;
     }
 
+    /** Mouvement court sur le sprite : avancée, recul ou secousse (classes CSS). */
+    function motion(sprite: SpriteView | undefined, cls: 'lunge-right' | 'lunge-left' | 'shake'): void {
+      if (!sprite) return;
+      const el = sprite.el;
+      el.classList.remove('lunge-right', 'lunge-left', 'shake');
+      void el.offsetWidth; // relance l'animation si elle est déjà en cours
+      el.classList.add(cls);
+      window.setTimeout(() => el.classList.remove(cls), 320);
+    }
+
     function animate(events: CombatEvent[]): void {
       for (const event of events) {
-        if (event.type === 'hit') flash(player, 'punch', 250, 'player');
-        else if (event.type === 'combo') flash(player, 'kick', 600, 'player');
-        else if (event.type === 'word-done' && event.perfect) flash(player, 'win', 700, 'player');
-        else if (event.type === 'riposte') {
+        if (event.type === 'hit') {
+          // Le héros avance et frappe ; l'ennemi encaisse.
+          flash(player, 'punch', 250, 'player');
+          motion(player, 'lunge-right');
+          flash(opponent, 'hit', 200, 'opponent');
+          motion(opponent, 'shake');
+        } else if (event.type === 'combo') {
+          flash(player, 'kick', 600, 'player');
+          motion(player, 'lunge-right');
+        } else if (event.type === 'word-done' && event.perfect) {
+          flash(player, 'win', 700, 'player');
+        } else if (event.type === 'riposte') {
+          // L'ennemi bondit vers le héros, qui encaisse.
           flash(opponent, 'punch', 300, 'opponent');
+          motion(opponent, 'lunge-left');
           flash(player, 'hit', 300, 'player');
-        } else if (event.type === 'defeat') flash(player, 'ko', 0, 'player');
+          motion(player, 'shake');
+        } else if (event.type === 'defeat') {
+          flash(player, 'ko', 0, 'player');
+        }
       }
     }
 
@@ -237,8 +260,8 @@ export const fightScreen: Screen = {
       .then(([hero, enemy]: [LoadedManifest, LoadedManifest]) => {
         if (cancelled) return;
         player = createSpriteView(hero, 'idle');
-        // L'ennemi regarde vers la gauche : pas de retournement.
-        opponent = createSpriteView(enemy, 'idle');
+        // L'ennemi fait face au héros, à gauche : son dessin regarde à droite, on le retourne.
+        opponent = createSpriteView(enemy, 'idle', { flip: true });
         stage.append(player.el, opponent.el);
         status.textContent = `${hero.manifest.name} contre ${enemy.manifest.name}`;
       })

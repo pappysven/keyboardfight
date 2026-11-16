@@ -138,8 +138,8 @@ body {
   image-rendering: pixelated;
   display: flex;
   align-items: flex-end;
-  justify-content: space-around;
-  gap: var(--space-2);
+  justify-content: center;
+  gap: var(--space-1);
   padding: var(--space-3) var(--space-2);
   background: var(--color-panel);
   border: 3px solid var(--color-panel-edge);
@@ -396,4 +396,33 @@ body {
   min-height: 120px;
   resize: vertical;
   line-height: 1.4;
+}
+
+/* Interactions : avancée, recul et secousse. `translate` n'interfère pas avec le retournement (transform). */
+@keyframes lunge-right {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 36px 0; }
+}
+
+@keyframes lunge-left {
+  0%, 100% { translate: 0 0; }
+  50% { translate: -36px 0; }
+}
+
+@keyframes shake {
+  0%, 100% { translate: 0 0; }
+  25% { translate: -8px 0; }
+  75% { translate: 8px 0; }
+}
+
+.sprite.lunge-right {
+  animation: lunge-right 260ms ease-out;
+}
+
+.sprite.lunge-left {
+  animation: lunge-left 260ms ease-out;
+}
+
+.sprite.shake {
+  animation: shake 240ms steps(4);
 }
