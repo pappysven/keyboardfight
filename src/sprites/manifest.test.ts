@@ -1,10 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import placeholder from '../../public/sprites/placeholder/manifest.json';
+import perso from '../../public/sprites/perso/manifest.json';
 import { ManifestError, parseManifest, POSE_NAMES, sheetUrl } from './manifest';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
+
+describe('manifeste du héros', () => {
+  it('est valide et utilise la planche de 12 cadres de 48 px', () => {
+    const manifest = parseManifest(perso);
+    const frames = POSE_NAMES.flatMap((p) => manifest.poses[p].frames);
+    expect(frames).toHaveLength(12);
+    expect(frames.every((f) => f.w === 48 && f.h === 48)).toBe(true);
+  });
+});
 
 describe('parseManifest', () => {
   it('accepte le manifeste provisoire fourni dans le dépôt', () => {

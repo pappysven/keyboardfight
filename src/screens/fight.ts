@@ -228,7 +228,7 @@ export const fightScreen: Screen = {
       pauseTimer = window.setTimeout(showPause, settings.sessionMinutes * 60_000);
     }
 
-    const url = new URL(`${import.meta.env.BASE_URL}sprites/placeholder/manifest.json`, window.location.href);
+    const url = new URL(`${import.meta.env.BASE_URL}sprites/perso/manifest.json`, window.location.href);
     loadManifest(url)
       .then((loaded: LoadedManifest) => {
         if (cancelled) return;
