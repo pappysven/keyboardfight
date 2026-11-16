@@ -173,3 +173,9 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Décision** : `defaultListId` rejoint `kf.settings`. Choisir une liste sur l'accueil l'enregistre. Le combat joue la liste choisie pendant la visite, sinon la liste par défaut, sinon la première.
 - **Schéma** : ajout compatible, donc `schemaVersion` reste à 1. Une donnée sans le champ se lit comme `null`. Les tests couvrent les deux cas.
 - **Conséquences** : si la liste par défaut est supprimée, on retombe sur la première, sans erreur.
+
+## D-027 — Changer le code parent : il faut l'ancien
+- **Date** : 2026-11-16
+- **Contexte** : le code est parfois à remplacer. Sans récupération (D-018), changer le code ne doit pas être ouvert à quiconque a accès à l'écran.
+- **Décision** : dans l'espace parent, changer le code demande l'ancien code, puis le nouveau deux fois. Le nouveau code suit les mêmes règles (4 caractères minimum, PBKDF2, sel neuf).
+- **Conséquences** : un code oublié se remet toujours à zéro en effaçant les données du navigateur. Les saisies de ce formulaire restent en place après une erreur.
