@@ -155,4 +155,5 @@ vite.config.ts.timestamp-*
 /public/sprites/*
 !/public/sprites/placeholder/
 !/public/sprites/perso/
+!/public/sprites/ennemi/
 *.private.*

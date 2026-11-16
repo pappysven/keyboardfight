@@ -228,14 +228,17 @@ export const fightScreen: Screen = {
       pauseTimer = window.setTimeout(showPause, settings.sessionMinutes * 60_000);
     }
 
-    const url = new URL(`${import.meta.env.BASE_URL}sprites/perso/manifest.json`, window.location.href);
-    loadManifest(url)
-      .then((loaded: LoadedManifest) => {
+    const base = import.meta.env.BASE_URL;
+    const heroUrl = new URL(`${base}sprites/perso/manifest.json`, window.location.href);
+    const enemyUrl = new URL(`${base}sprites/ennemi/manifest.json`, window.location.href);
+    Promise.all([loadManifest(heroUrl), loadManifest(enemyUrl)])
+      .then(([hero, enemy]: [LoadedManifest, LoadedManifest]) => {
         if (cancelled) return;
-        player = createSpriteView(loaded, 'idle');
-        opponent = createSpriteView(loaded, 'idle', { flip: true });
+        player = createSpriteView(hero, 'idle');
+        // L'ennemi regarde vers la gauche : pas de retournement.
+        opponent = createSpriteView(enemy, 'idle');
         stage.append(player.el, opponent.el);
-        status.textContent = `Personnage : ${loaded.manifest.name}`;
+        status.textContent = `${hero.manifest.name} contre ${enemy.manifest.name}`;
       })
       .catch((error: unknown) => {
         if (cancelled) return;
