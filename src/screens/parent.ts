@@ -35,6 +35,9 @@ export const parentScreen: Screen = {
     // Saisie en cours de la liste : conservée entre deux rendus.
     let formName = '';
     let formWords = '';
+    let codeCurrent = '';
+    let codeNext = '';
+    let codeConfirm = '';
     let error = '';
     let notice = '';
 
@@ -373,6 +376,69 @@ export const parentScreen: Screen = {
       );
     }
 
+    /** Changement du code : il faut connaître l'ancien. Pas de récupération (D-018). */
+    function codeSection(): HTMLElement {
+      const current = textInput({ type: 'password', autocomplete: 'current-password', 'aria-label': 'Code actuel' });
+      const next = textInput({ type: 'password', autocomplete: 'new-password', 'aria-label': 'Nouveau code' });
+      const confirm = textInput({ type: 'password', autocomplete: 'new-password', 'aria-label': 'Confirmer le nouveau code' });
+      // Les saisies survivent aux rendus (une erreur reconstruit la section).
+      current.value = codeCurrent;
+      next.value = codeNext;
+      confirm.value = codeConfirm;
+      current.addEventListener('input', () => {
+        codeCurrent = current.value;
+      });
+      next.addEventListener('input', () => {
+        codeNext = next.value;
+      });
+      confirm.addEventListener('input', () => {
+        codeConfirm = confirm.value;
+      });
+      return h(
+        'section',
+        { className: 'panel-section', 'aria-labelledby': 'h-code' },
+        h('h2', { className: 'section-title', id: 'h-code' }, 'Code parent'),
+        h(
+          'form',
+          {
+            className: 'form',
+            onSubmit: (e: Event) => {
+              e.preventDefault();
+              void changeCode(current.value, next.value, confirm.value);
+            },
+          },
+          field('Code actuel', current),
+          field('Nouveau code', next),
+          field('Confirme le nouveau code', confirm),
+          h('button', { className: 'btn', type: 'submit' }, 'Changer le code'),
+        ),
+      );
+    }
+
+    async function changeCode(old: string, first: string, second: string): Promise<void> {
+      error = '';
+      notice = '';
+      if (!settings.parentCode || !(await verifyParentCode(old, settings.parentCode))) {
+        error = 'Code actuel incorrect.';
+        return render();
+      }
+      if (first !== second) {
+        error = 'Les deux nouveaux codes ne correspondent pas.';
+        return render();
+      }
+      try {
+        settings = { ...settings, parentCode: await createParentCode(first) };
+        saveSettings(store, settings);
+        codeCurrent = '';
+        codeNext = '';
+        codeConfirm = '';
+        notice = 'Code changé.';
+      } catch (e) {
+        error = e instanceof Error ? e.message : 'Impossible de changer le code.';
+      }
+      render();
+    }
+
     function progressionSection(): HTMLElement {
       return h(
         'section',
@@ -401,6 +467,7 @@ export const parentScreen: Screen = {
         settingsSection(),
         blockedSection(),
         revisionSection(),
+        codeSection(),
         progressionSection(),
         h(
           'div',

@@ -44,6 +44,8 @@ export const fightScreen: Screen = {
     let stats: SessionStats = emptySession();
     let pauseTimer: number | undefined;
     let hideTimer: number | undefined;
+    let playerPoseTimer: number | undefined;
+    let opponentPoseTimer: number | undefined;
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     const stage = h('div', { className: 'arena' });
@@ -117,7 +119,36 @@ export const fightScreen: Screen = {
       if (mode === 'dictee') speak(state.target);
     }
 
+    /** Joue une pose courte puis revient au repos. Ne fait rien tant que le sprite n'est pas chargé. */
+    function flash(
+      sprite: SpriteView | undefined,
+      pose: 'punch' | 'special' | 'hit' | 'ko',
+      ms: number,
+      which: 'player' | 'opponent',
+    ): void {
+      if (!sprite) return;
+      if (which === 'player') window.clearTimeout(playerPoseTimer);
+      else window.clearTimeout(opponentPoseTimer);
+      sprite.setPose(pose);
+      if (pose === 'ko') return; // le KO reste affiché
+      const timer = window.setTimeout(() => sprite.setPose('idle'), ms);
+      if (which === 'player') playerPoseTimer = timer;
+      else opponentPoseTimer = timer;
+    }
+
+    function animate(events: CombatEvent[]): void {
+      for (const event of events) {
+        if (event.type === 'hit') flash(player, 'punch', 250, 'player');
+        else if (event.type === 'combo') flash(player, 'special', 600, 'player');
+        else if (event.type === 'riposte') {
+          flash(opponent, 'punch', 300, 'opponent');
+          flash(player, 'hit', 300, 'player');
+        } else if (event.type === 'defeat') flash(player, 'ko', 0, 'player');
+      }
+    }
+
     function announce(events: CombatEvent[]): void {
+      animate(events);
       for (const event of events) {
         if (event.type === 'riposte') feedback.textContent = 'Riposte ! Un peu de vie en moins.';
         else if (event.type === 'combo') feedback.textContent = 'COMBO !';
@@ -143,6 +174,8 @@ export const fightScreen: Screen = {
     function finish(): void {
       window.clearTimeout(pauseTimer);
       window.clearTimeout(hideTimer);
+      window.clearTimeout(playerPoseTimer);
+      window.clearTimeout(opponentPoseTimer);
       window.removeEventListener('keydown', onKeydown);
       stopSpeaking();
       const now = new Date().toISOString();
@@ -204,6 +237,8 @@ export const fightScreen: Screen = {
       cancelled = true;
       window.clearTimeout(pauseTimer);
       window.clearTimeout(hideTimer);
+      window.clearTimeout(playerPoseTimer);
+      window.clearTimeout(opponentPoseTimer);
       window.removeEventListener('keydown', onKeydown);
       stopSpeaking();
       player?.destroy();
