@@ -87,10 +87,11 @@ Implémenté dans `src/screens/fight.ts` (fonction `animate`).
 |---|---|---|
 | `idle` | Repos, en attente de la saisie. Retour après chaque pose courte. | — |
 | `punch` | Bonne touche : le personnage frappe. Après une faute : l'adversaire riposte. | 250 ms (personnage) / 300 ms (adversaire) |
-| `special` | Combo : bonnes touches rapides d'affilée. | 600 ms |
+| `kick` | Combo : bonnes touches rapides d'affilée, le personnage donne un coup de pied. | 600 ms |
+| `win` | Mot tapé sans faute (PERFECT) : le personnage pose en vainqueur. | 700 ms |
+| `special` | Réservée : gardée dans le manifeste, sans déclencheur pour l'instant. | — |
 | `hit` | Riposte : le personnage est touché. | 300 ms |
 | `ko` | Défaite : le personnage reste au KO. | jusqu'à la fin |
-| `kick`, `win` | Pas encore branchées (victoire et coups de pied : lot suivant). | — |
 
 ### Sprites privés
 

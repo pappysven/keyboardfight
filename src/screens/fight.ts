@@ -122,7 +122,7 @@ export const fightScreen: Screen = {
     /** Joue une pose courte puis revient au repos. Ne fait rien tant que le sprite n'est pas chargé. */
     function flash(
       sprite: SpriteView | undefined,
-      pose: 'punch' | 'special' | 'hit' | 'ko',
+      pose: 'punch' | 'kick' | 'win' | 'hit' | 'ko',
       ms: number,
       which: 'player' | 'opponent',
     ): void {
@@ -139,7 +139,8 @@ export const fightScreen: Screen = {
     function animate(events: CombatEvent[]): void {
       for (const event of events) {
         if (event.type === 'hit') flash(player, 'punch', 250, 'player');
-        else if (event.type === 'combo') flash(player, 'special', 600, 'player');
+        else if (event.type === 'combo') flash(player, 'kick', 600, 'player');
+        else if (event.type === 'word-done' && event.perfect) flash(player, 'win', 700, 'player');
         else if (event.type === 'riposte') {
           flash(opponent, 'punch', 300, 'opponent');
           flash(player, 'hit', 300, 'player');
