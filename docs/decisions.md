@@ -195,3 +195,10 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
   - Sans liste (mot de démonstration), seule la vie du Gardien décide.
   - **En facile**, l'enfant ne peut pas perdre : à la fin de la liste, elle recommence et le combat continue jusqu'à la défaite du Gardien (confirmé par l'humain).
 - **Statut** : valeur de 20 points provisoire.
+
+## D-030 — Arène dynamique : effets dans l'arène seulement
+- **Date** : 2026-11-16
+- **Contexte** : les combats étaient jugés trop statiques ; le graphisme manquait de finition.
+- **Décision** : l'arène devient un composant à part (`src/screens/fight-fx.ts`) avec barres de vie intégrées, ombres, mouvements d'attaque et de recul, étincelles, dégâts flottants, bannières et secousse. Les planches sont retraitées (contour net, plus de liseré). La barre de poses de test n'apparaît plus qu'en développement.
+- **Garde-fous pédagogiques** : aucun effet hors de l'arène, rien de plus long que 1,2 s (hors fin de combat), aucun son, et respect de `prefers-reduced-motion`. Les règles du jeu ne changent pas.
+- **À surveiller** : si les effets distraient l'enfant pendant la saisie, prévoir un réglage parent « effets réduits ».

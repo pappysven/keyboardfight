@@ -105,6 +105,17 @@ Un personnage basé sur une personne réelle **ne va jamais dans le dépôt**. L
 - Personnage original, généré à partir d'une description. Ce n'est pas une personne réelle.
 - Nom affiché : « Lumi » (nom inventé, sans lien avec une personne).
 
+## Arène de combat
+
+Code : `src/screens/fight-fx.ts` (structure et effets), `src/style.css` (section « Arène de combat »).
+
+- **Couches** : décor (`public/decor/arene.png`), voile dégradé, combattants avec ombre au sol, effets, bannière, barres de vie.
+- **Barres de vie** dans l'arène, façon jeu de combat : héros à gauche, adversaire à droite. Une traînée dorée montre un instant la vie perdue ; la barre clignote sous 30 %.
+- **Mouvements** : entrée en scène, fente (coup), ruée sautée (combo), recul (coup reçu), saut (PERFECT, victoire), chute (K.O.).
+- **Effets** : flash blanc du sprite touché, étincelle d'impact, dégâts flottants, bannières « COMBO ! », « PERFECT ! », « K.O. », secousse de l'arène.
+- **Règles** : tout reste dans l'arène ; les effets sont décoratifs (`aria-hidden`) et durent moins de 1,2 s ; `prefers-reduced-motion` supprime déplacements et secousses.
+- **Planches** : préparées par `scripts/process-sheet.py` (détourage sans liseré, contour sombre d'1 px, 28 couleurs).
+
 ## Placeholder
 
 Le personnage provisoire (`public/sprites/placeholder/`) est une planche PNG de rectangles colorés, générée une fois. Il sert à valider le chargeur, pas à montrer le graphisme définitif.
