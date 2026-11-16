@@ -7,7 +7,7 @@
 export const ENEMY_IDS: readonly string[] = ['ennemi', 'ennemi-bronze', 'ennemi-givre'];
 
 /** Fichiers de public/decor/ (sans l'extension .png). */
-export const DECOR_IDS: readonly string[] = ['arene', 'arene-aube', 'arene-brume'];
+export const DECOR_IDS: readonly string[] = ['arene', 'arene-aube', 'arene-brume', 'plage'];
 
 /**
  * Tire un élément au hasard, différent du précédent quand la liste le permet.

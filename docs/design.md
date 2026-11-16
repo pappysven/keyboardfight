@@ -122,7 +122,7 @@ Code : `src/screens/fight-fx.ts` (structure et effets), `src/style.css` (section
 
 - Catalogue : `src/game/roster.ts` (`ENEMY_IDS`, `DECOR_IDS`). Chaque combat tire un adversaire et un décor, différents du combat précédent.
 - Adversaires : `public/sprites/<id>/` (manifeste + planche, même format que le héros). Décors : `public/decor/<id>.png`.
-- Aujourd'hui : Gardien de nuit (original), Gardien de bronze et Gardien de givre (variantes recolorées) ; arène de nuit (originale), lueur chaude et brume (variantes).
+- Aujourd'hui : Gardien de nuit (original), Gardien de bronze et Gardien de givre (variantes recolorées) ; arène de nuit (originale), lueur chaude et brume (variantes), plage au coucher du soleil (originale).
 - Les variantes sont produites par `scripts/make-variants.py` à partir des originaux.
 - **Ajouter un adversaire** : générer une planche (grille 6 × 2, fond magenta uni), la traiter avec `scripts/process-sheet.py`, créer `public/sprites/ennemi-<nom>/` avec son `manifest.json`, puis ajouter l'identifiant à `ENEMY_IDS`. Le `.gitignore` accepte `public/sprites/ennemi-*/`.
 - **Ajouter un décor** : déposer un PNG horizontal (environ 1024 × 256) dans `public/decor/`, puis ajouter son nom à `DECOR_IDS`.
