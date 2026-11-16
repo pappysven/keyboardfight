@@ -2,7 +2,7 @@ import { h } from '../app/dom';
 import type { Screen } from '../app/router';
 import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } from '../game/combat';
 import { accumulate, emptySession, setLastSession, toSessionRecord, type SessionStats } from '../game/session';
-import { recordSession } from '../game/progression';
+import { recordSession, TECHNIQUE_LABELS } from '../game/progression';
 import { playableWords, HIDE_DELAY_MS, visibleWord } from '../game/revision';
 import { activeList } from '../game/selection';
 import type { DisplayMode } from '../data/types';
@@ -77,7 +77,11 @@ export const fightScreen: Screen = {
       h(
         'main',
         { className: 'screen screen--fight' },
-        h('p', { className: 'hud' }, chosen ? `COMBAT · ${chosen.name}` : 'COMBAT'),
+        h(
+          'p',
+          { className: 'hud' },
+          `COMBAT · ${TECHNIQUE_LABELS[settings.trainingTechnique]}${chosen ? ` · ${chosen.name}` : ''}`,
+        ),
         stage,
         hp,
         word,
@@ -181,9 +185,14 @@ export const fightScreen: Screen = {
       stopSpeaking();
       const now = new Date().toISOString();
       const current = loadProgression(store, now);
+      // L'étape choisie reçoit la session si elle est ouverte ; sinon la rangée de repos.
+      const technique =
+        current.techniques[settings.trainingTechnique].unlockedAt !== null
+          ? settings.trainingTechnique
+          : TRAINING_TECHNIQUE;
       const { progression, unlocked } = recordSession(
         current,
-        TRAINING_TECHNIQUE,
+        technique,
         toSessionRecord(stats, now),
         now,
       );

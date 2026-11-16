@@ -39,7 +39,7 @@ Une étape se débloque lorsque **toutes ses prérequises** sont maîtrisées : 
 
 ## Enregistrement
 
-- Une session est enregistrée à la fin du combat, sur l'étape travaillée. Aujourd'hui, c'est la rangée de repos, en attendant le choix d'étape.
+- Une session est enregistrée à la fin du combat, sur l'étape travaillée, choisie à l'accueil parmi les étapes débloquées (D-028). Sans étape ouverte valide, c'est la rangée de repos.
 - Une étape verrouillée ne reçoit pas de session.
 - Seuls les agrégats sont stockés (durée non, frappes individuelles non) : voir docs/data-contracts.md et D-017.
 

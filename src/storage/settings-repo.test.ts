@@ -33,6 +33,17 @@ describe('réglages', () => {
     expect(loadSettings(new Store(backend)).defaultListId).toBeNull();
   });
 
+  it('mémorise l’étape travaillée ; absente = rangée de repos', () => {
+    const store = new Store(createMemoryBackend());
+    saveSettings(store, { ...DEFAULT_SETTINGS, trainingTechnique: 'haute' });
+    expect(loadSettings(store).trainingTechnique).toBe('haute');
+    expect(parseSettings({ ...DEFAULT_SETTINGS, trainingTechnique: undefined }).trainingTechnique).toBe('repos');
+  });
+
+  it('rejette une étape inconnue', () => {
+    expect(() => parseSettings({ ...DEFAULT_SETTINGS, trainingTechnique: 'inconnue' })).toThrow(/trainingTechnique/);
+  });
+
   it('rejette une difficulté ou une durée inconnue', () => {
     expect(() => parseSettings({ ...DEFAULT_SETTINGS, difficulty: 'impossible' })).toThrow(/difficulty/);
     expect(() => parseSettings({ ...DEFAULT_SETTINGS, sessionMinutes: 7 })).toThrow(/sessionMinutes/);

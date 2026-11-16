@@ -179,3 +179,9 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : le code est parfois à remplacer. Sans récupération (D-018), changer le code ne doit pas être ouvert à quiconque a accès à l'écran.
 - **Décision** : dans l'espace parent, changer le code demande l'ancien code, puis le nouveau deux fois. Le nouveau code suit les mêmes règles (4 caractères minimum, PBKDF2, sel neuf).
 - **Conséquences** : un code oublié se remet toujours à zéro en effaçant les données du navigateur. Les saisies de ce formulaire restent en place après une erreur.
+
+## D-028 — Étape travaillée : choisie à l'accueil, mémorisée
+- **Date** : 2026-11-16
+- **Contexte** : toutes les sessions allaient sur la rangée de repos, même une fois d'autres étapes ouvertes.
+- **Décision** : `trainingTechnique` rejoint `kf.settings` (défaut `repos`). L'accueil propose les étapes débloquées ; le choix est enregistré. La session va sur cette étape si elle est ouverte, sinon sur la rangée de repos. Le titre du combat affiche l'étape.
+- **Schéma** : ajout compatible (`schemaVersion` reste à 1). Absent = `repos` ; une valeur inconnue est refusée à la lecture.
