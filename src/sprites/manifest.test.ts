@@ -1,11 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import placeholder from '../../public/sprites/placeholder/manifest.json';
 import perso from '../../public/sprites/perso/manifest.json';
+import ennemi from '../../public/sprites/ennemi/manifest.json';
 import { ManifestError, parseManifest, POSE_NAMES, sheetUrl } from './manifest';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
+
+describe('manifeste de l’ennemi', () => {
+  it('est valide et utilise 12 cadres de 48 px', () => {
+    const manifest = parseManifest(ennemi);
+    const frames = POSE_NAMES.flatMap((p) => manifest.poses[p].frames);
+    expect(frames).toHaveLength(12);
+    expect(frames.every((f) => f.w === 48 && f.h === 48)).toBe(true);
+  });
+});
 
 describe('manifeste du héros', () => {
   it('est valide et utilise la planche de 12 cadres de 48 px', () => {

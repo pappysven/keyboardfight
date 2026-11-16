@@ -133,6 +133,9 @@ body {
 .arena {
   width: 100%;
   min-height: 200px;
+  background-size: cover;
+  background-position: center bottom;
+  image-rendering: pixelated;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
