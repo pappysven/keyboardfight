@@ -193,5 +193,5 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
   - Vaincu : « Le Gardien est vaincu. Bravo ! ».
   - Si une liste est jouée et que tous ses mots ont été tapés une fois alors que le Gardien est encore debout, il gagne. Le combat se termine sur « Le Gardien gagne cette fois ».
   - Sans liste (mot de démonstration), seule la vie du Gardien décide.
-- **Conflit à trancher** : `docs/pedagogie.md` dit qu'en facile l'enfant ne peut pas perdre. Avec cette règle, il peut perdre en facile à la fin de la liste. Le code applique la règle demandée ; la pédagogie doit être confirmée ou la règle adaptée à la facile.
-- **Statut** : valeur de 20 points et règle de fin de liste provisoires.
+  - **En facile**, l'enfant ne peut pas perdre : à la fin de la liste, elle recommence et le combat continue jusqu'à la défaite du Gardien (confirmé par l'humain).
+- **Statut** : valeur de 20 points provisoire.

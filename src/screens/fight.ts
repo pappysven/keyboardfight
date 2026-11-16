@@ -264,10 +264,16 @@ export const fightScreen: Screen = {
       if (step.events.some((e) => e.type === 'word-done')) {
         wordsDone += 1;
         if (hasList && listFinished(wordsDone, pool.length)) {
-          feedback.textContent = 'La liste est finie : le Gardien gagne.';
-          flash(opponent, 'win', 0, 'opponent');
-          endFight('enemy-wins', 900);
-          return;
+          if (settings.difficulty === 'facile') {
+            // En facile, l'enfant ne peut pas perdre : la liste recommence.
+            feedback.textContent = 'La liste recommence.';
+            wordsDone = 0;
+          } else {
+            feedback.textContent = 'La liste est finie : le Gardien gagne.';
+            flash(opponent, 'win', 0, 'opponent');
+            endFight('enemy-wins', 900);
+            return;
+          }
         }
         startNextWord();
       }
