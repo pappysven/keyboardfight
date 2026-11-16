@@ -4,6 +4,7 @@ import { startCombat, nextWord, keystroke, type CombatEvent, type CombatState } 
 import { accumulate, emptySession, setLastSession, toSessionRecord, type SessionStats } from '../game/session';
 import { recordSession, TECHNIQUE_LABELS } from '../game/progression';
 import { playableWords, HIDE_DELAY_MS, visibleWord } from '../game/revision';
+import { CombatOutcome, ENEMY_MAX_HP, enemyAfterHit, listFinished } from '../game/boss';
 import { activeList } from '../game/selection';
 import type { DisplayMode } from '../data/types';
 import { createAppStore } from '../storage/store';
@@ -39,6 +40,11 @@ export const fightScreen: Screen = {
     const words = pool.length > 0 ? pool : [DEMO_WORD];
     let wordIndex = 0;
     let wordShownAt = performance.now();
+    // Le Gardien : vie propre, et la fin de liste lui donne la victoire (D-029).
+    const hasList = pool.length > 0;
+    let enemyHp = ENEMY_MAX_HP;
+    let wordsDone = 0;
+    let ended = false;
 
     let state: CombatState = startCombat(settings.difficulty, MAX_HP, words[0] ?? DEMO_WORD);
     let stats: SessionStats = emptySession();
@@ -51,6 +57,8 @@ export const fightScreen: Screen = {
     const stage = h('div', { className: 'arena' });
     // Décor d'arène : image pixel art, servie depuis public/decor/.
     stage.style.backgroundImage = `url("${import.meta.env.BASE_URL}decor/arene.png")`;
+    const enemyFill = h('div', { className: 'hp__fill hp__fill--enemy' });
+    const enemyBar = h('div', { className: 'hp hp--enemy', 'aria-label': 'Vie du Gardien' }, enemyFill);
     const hpFill = h('div', { className: 'hp__fill' });
     const hp = h('div', { className: 'hp', 'aria-label': 'Vie' }, hpFill);
     const word = h('p', { className: 'word', 'aria-live': 'off' });
@@ -84,6 +92,7 @@ export const fightScreen: Screen = {
           { className: 'hud' },
           `COMBAT · ${TECHNIQUE_LABELS[settings.trainingTechnique]}${chosen ? ` · ${chosen.name}` : ''}`,
         ),
+        enemyBar,
         stage,
         hp,
         word,
@@ -95,7 +104,7 @@ export const fightScreen: Screen = {
         h(
           'div',
           { className: 'actions' },
-          h('button', { className: 'btn btn--primary', onClick: finish }, 'Terminer le combat'),
+          h('button', { className: 'btn btn--primary', onClick: () => endFight('stopped', 0) }, 'Terminer le combat'),
           h('button', { className: 'btn', onClick: () => navigate('accueil') }, 'Retour'),
         ),
       ),
@@ -111,6 +120,7 @@ export const fightScreen: Screen = {
         h('span', { className: 'word__todo' }, shown ?? '_'.repeat(rest.length)),
       );
       hpFill.style.width = `${(state.hp / state.maxHp) * 100}%`;
+      enemyFill.style.width = `${(enemyHp / ENEMY_MAX_HP) * 100}%`;
     }
 
     /** Passe au mot suivant de la liste et relance le délai de masquage éventuel. */
@@ -200,33 +210,38 @@ export const fightScreen: Screen = {
       );
     }
 
-    /** Enregistre la session en mémoire et passe à l'écran de résultat. */
-    function finish(): void {
-      window.clearTimeout(pauseTimer);
-      window.clearTimeout(hideTimer);
-      window.clearTimeout(playerPoseTimer);
-      window.clearTimeout(opponentPoseTimer);
-      window.removeEventListener('keydown', onKeydown);
-      stopSpeaking();
-      const now = new Date().toISOString();
-      const current = loadProgression(store, now);
-      // L'étape choisie reçoit la session si elle est ouverte ; sinon la rangée de repos.
-      const technique =
-        current.techniques[settings.trainingTechnique].unlockedAt !== null
-          ? settings.trainingTechnique
-          : TRAINING_TECHNIQUE;
-      const { progression, unlocked } = recordSession(
-        current,
-        technique,
-        toSessionRecord(stats, now),
-        now,
-      );
-      saveProgression(store, progression);
-      setLastSession({ stats, unlocked });
-      navigate('resultat');
+    /** Enregistre la session en mémoire puis passe au résultat, après un court délai si besoin. */
+    function endFight(outcome: CombatOutcome, delayMs: number): void {
+      if (ended) return;
+      ended = true;
+      window.setTimeout(() => {
+        window.clearTimeout(pauseTimer);
+        window.clearTimeout(hideTimer);
+        window.clearTimeout(playerPoseTimer);
+        window.clearTimeout(opponentPoseTimer);
+        window.removeEventListener('keydown', onKeydown);
+        stopSpeaking();
+        const now = new Date().toISOString();
+        const current = loadProgression(store, now);
+        // L'étape choisie reçoit la session si elle est ouverte ; sinon la rangée de repos.
+        const technique =
+          current.techniques[settings.trainingTechnique].unlockedAt !== null
+            ? settings.trainingTechnique
+            : TRAINING_TECHNIQUE;
+        const { progression, unlocked } = recordSession(
+          current,
+          technique,
+          toSessionRecord(stats, now),
+          now,
+        );
+        saveProgression(store, progression);
+        setLastSession({ stats, unlocked, outcome });
+        navigate('resultat');
+      }, delayMs);
     }
 
     function onKeydown(event: KeyboardEvent): void {
+      if (ended) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key.length !== 1) return;
       const step = keystroke(state, event.key, performance.now());
@@ -234,10 +249,26 @@ export const fightScreen: Screen = {
       stats = accumulate(stats, step.events);
       announce(step.events);
       if (step.events.some((e) => e.type === 'defeat')) {
-        finish();
+        endFight('child-defeat', 0);
         return;
       }
+      if (step.events.some((e) => e.type === 'hit')) {
+        enemyHp = enemyAfterHit(enemyHp);
+        if (enemyHp === 0) {
+          feedback.textContent = 'Le Gardien est vaincu !';
+          flash(opponent, 'ko', 0, 'opponent');
+          endFight('victory', 900);
+          return;
+        }
+      }
       if (step.events.some((e) => e.type === 'word-done')) {
+        wordsDone += 1;
+        if (hasList && listFinished(wordsDone, pool.length)) {
+          feedback.textContent = 'La liste est finie : le Gardien gagne.';
+          flash(opponent, 'win', 0, 'opponent');
+          endFight('enemy-wins', 900);
+          return;
+        }
         startNextWord();
       }
       render();

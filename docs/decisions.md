@@ -185,3 +185,13 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Contexte** : toutes les sessions allaient sur la rangée de repos, même une fois d'autres étapes ouvertes.
 - **Décision** : `trainingTechnique` rejoint `kf.settings` (défaut `repos`). L'accueil propose les étapes débloquées ; le choix est enregistré. La session va sur cette étape si elle est ouverte, sinon sur la rangée de repos. Le titre du combat affiche l'étape.
 - **Schéma** : ajout compatible (`schemaVersion` reste à 1). Absent = `repos` ; une valeur inconnue est refusée à la lecture.
+
+## D-029 — Le Gardien : vie propre, et victoire à la fin de la liste
+- **Date** : 2026-11-16
+- **Décision** (demandée par l'humain) :
+  - Le Gardien a 20 points de vie. Chaque bonne touche lui en retire 1 (`src/game/boss.ts`). Valeur provisoire.
+  - Vaincu : « Le Gardien est vaincu. Bravo ! ».
+  - Si une liste est jouée et que tous ses mots ont été tapés une fois alors que le Gardien est encore debout, il gagne. Le combat se termine sur « Le Gardien gagne cette fois ».
+  - Sans liste (mot de démonstration), seule la vie du Gardien décide.
+- **Conflit à trancher** : `docs/pedagogie.md` dit qu'en facile l'enfant ne peut pas perdre. Avec cette règle, il peut perdre en facile à la fin de la liste. Le code applique la règle demandée ; la pédagogie doit être confirmée ou la règle adaptée à la facile.
+- **Statut** : valeur de 20 points et règle de fin de liste provisoires.
