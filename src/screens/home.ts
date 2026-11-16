@@ -4,13 +4,16 @@ import { activeList, selectList } from '../game/selection';
 import { DISPLAY_LABELS } from '../game/revision';
 import { createAppStore } from '../storage/store';
 import { loadRevisionLists } from '../storage/revision-repo';
+import { loadSettings, saveSettings } from '../storage/settings-repo';
 
 export const homeScreen: Screen = {
   mount(root, navigate) {
-    const lists = loadRevisionLists(createAppStore());
+    const store = createAppStore();
+    const lists = loadRevisionLists(store);
+    const settings = loadSettings(store);
 
     function render(): void {
-      const current = activeList(lists);
+      const current = activeList(lists, settings.defaultListId);
       root.replaceChildren(
         h(
           'main',
@@ -33,6 +36,8 @@ export const homeScreen: Screen = {
                         'aria-pressed': String(current?.id === l.id),
                         onClick: () => {
                           selectList(l.id);
+                          settings.defaultListId = l.id;
+                          saveSettings(store, settings);
                           render();
                         },
                       },

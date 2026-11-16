@@ -31,7 +31,7 @@ export const fightScreen: Screen = {
     const settings = loadSettings(store);
 
     // Mots : liste choisie à l'accueil (mots bloqués retirés), sinon le mot de démonstration.
-    const chosen = activeList(loadRevisionLists(store));
+    const chosen = activeList(loadRevisionLists(store), settings.defaultListId);
     const mode: DisplayMode = chosen?.displayMode ?? 'affiche';
     const pool = chosen
       ? playableWords(chosen.words, loadBlockedWords(store))

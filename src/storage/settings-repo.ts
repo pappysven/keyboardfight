@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sessionMinutes: 5,
   proposePause: true,
   parentCode: null,
+  defaultListId: null,
 };
 
 const DIFFICULTIES: readonly Difficulty[] = ['facile', 'moyen', 'difficile'];
@@ -37,12 +38,17 @@ export function parseSettings(raw: unknown): Settings {
   if (!DIFFICULTIES.includes(s.difficulty as Difficulty)) fail('difficulty');
   if (s.sessionMinutes !== 5 && s.sessionMinutes !== 10) fail('sessionMinutes');
   if (typeof s.proposePause !== 'boolean') fail('proposePause');
+  if (s.defaultListId !== undefined && s.defaultListId !== null && typeof s.defaultListId !== 'string') {
+    fail('defaultListId');
+  }
   return {
     schemaVersion: 1,
     difficulty: s.difficulty as Difficulty,
     sessionMinutes: s.sessionMinutes,
     proposePause: s.proposePause,
     parentCode: parseParentCode(s.parentCode),
+    // Champ ajouté après coup : absent dans les données anciennes, donc null.
+    defaultListId: typeof s.defaultListId === 'string' ? s.defaultListId : null,
   };
 }
 
@@ -56,5 +62,6 @@ export function saveSettings(store: Store, settings: Settings): boolean {
     sessionMinutes: settings.sessionMinutes,
     proposePause: settings.proposePause,
     parentCode: settings.parentCode,
+    defaultListId: settings.defaultListId,
   });
 }

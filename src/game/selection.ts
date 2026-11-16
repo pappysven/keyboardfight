@@ -1,8 +1,8 @@
 import type { RevisionList } from '../data/types';
 
 /**
- * Liste choisie pour le prochain combat. Mémoire seulement : elle repart de la première
- * liste au rechargement de la page (décision D-025).
+ * Liste choisie pendant la visite (mémoire). Au départ, on prend la liste par défaut
+ * enregistrée dans les réglages (kf.settings.defaultListId).
  */
 let selectedListId: string | null = null;
 
@@ -10,7 +10,11 @@ export function selectList(id: string | null): void {
   selectedListId = id;
 }
 
-/** Liste à jouer : la choisie si elle existe encore, sinon la première, sinon aucune. */
-export function activeList(lists: readonly RevisionList[]): RevisionList | undefined {
-  return lists.find((l) => l.id === selectedListId) ?? lists[0];
+/** Liste à jouer : choisie pendant la visite, sinon la par défaut, sinon la première. */
+export function activeList(
+  lists: readonly RevisionList[],
+  defaultListId: string | null = null,
+): RevisionList | undefined {
+  const wanted = selectedListId ?? defaultListId;
+  return lists.find((l) => l.id === wanted) ?? lists[0];
 }

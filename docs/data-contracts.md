@@ -49,12 +49,14 @@ Les types sont dans `src/data/types.ts`. Ce fichier est la référence de code ;
     "difficulty": "facile",
     "sessionMinutes": 5,
     "proposePause": true,
-    "parentCode": null
+    "parentCode": null,
+    "defaultListId": null
   }
 }
 ```
 
 - `difficulty` : `"facile"` | `"moyen"` | `"difficile"` (plancher de vie, voir docs/pedagogie.md).
+- `defaultListId` : identifiant de la liste jouée par défaut (`null` = la première). Champ ajouté sans changer la version : une donnée sans ce champ se lit comme `null` (D-026).
 - `sessionMinutes` : `5` | `10`.
 - `parentCode` : `null` tant que le code n'est pas défini. Sinon :
   ```json

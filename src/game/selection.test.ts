@@ -26,6 +26,16 @@ describe('liste active', () => {
     expect(activeList([list('a')])?.id).toBe('a');
   });
 
+  it('sans choix pendant la visite, prend la liste par défaut enregistrée', () => {
+    selectList(null);
+    expect(activeList([list('a'), list('b')], 'b')?.id).toBe('b');
+  });
+
+  it('un choix de la visite l’emporte sur la liste par défaut', () => {
+    selectList('a');
+    expect(activeList([list('a'), list('b')], 'b')?.id).toBe('a');
+  });
+
   it('aucune liste : rien à jouer', () => {
     selectList(null);
     expect(activeList([])).toBeUndefined();
