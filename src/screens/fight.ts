@@ -49,6 +49,8 @@ export const fightScreen: Screen = {
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     const stage = h('div', { className: 'arena' });
+    // Décor d'arène : image pixel art, servie depuis public/decor/.
+    stage.style.backgroundImage = `url("${import.meta.env.BASE_URL}decor/arene.png")`;
     const hpFill = h('div', { className: 'hp__fill' });
     const hp = h('div', { className: 'hp', 'aria-label': 'Vie' }, hpFill);
     const word = h('p', { className: 'word', 'aria-live': 'off' });
