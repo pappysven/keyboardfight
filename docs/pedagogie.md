@@ -32,7 +32,7 @@ Le combat est un jeu de combat en pixel art vu de côté. Chaque bonne touche es
 
 | Difficulté | Plancher | Conséquence |
 |---|---|---|
-| **Facile** | 25 % des PV max | L'enfant ne peut pas perdre. |
+| **Facile** | 25 % des PV max | L'enfant ne peut pas perdre. En fin de liste, la liste recommence jusqu'à la défaite du Gardien (D-029). |
 | **Moyen** | 0 % | Une défaite est possible. |
 | **Difficile** | 0 % | Une défaite est possible. |
 

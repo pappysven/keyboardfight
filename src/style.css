@@ -426,3 +426,11 @@ body {
 .sprite.shake {
   animation: shake 240ms steps(4);
 }
+
+.hp--enemy {
+  max-width: 480px;
+}
+
+.hp__fill--enemy {
+  background: var(--color-danger);
+}

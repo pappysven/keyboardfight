@@ -1,5 +1,6 @@
 import type { SessionRecord, TechniqueId } from '../data/types';
 import type { CombatEvent } from './combat';
+import type { CombatOutcome } from './boss';
 
 /**
  * Statistiques d'une session de combat. Calculées en mémoire uniquement :
@@ -62,6 +63,7 @@ export function toSessionRecord(stats: SessionStats, endedAt: string): SessionRe
 export interface SessionResult {
   stats: SessionStats;
   unlocked: TechniqueId[];
+  outcome: CombatOutcome;
 }
 
 let lastSession: SessionResult | null = null;
