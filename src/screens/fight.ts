@@ -15,6 +15,7 @@ import { loadRevisionLists } from '../storage/revision-repo';
 import { speak, stopSpeaking } from '../audio/speech';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
+import { createArena } from './fight-fx';
 
 const MAX_HP = 100;
 /** Mot de démonstration fictif, utilisé seulement sans liste de révision (AGENTS.md). */
@@ -54,13 +55,8 @@ export const fightScreen: Screen = {
     let opponentPoseTimer: number | undefined;
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
-    const stage = h('div', { className: 'arena' });
-    // Décor d'arène : image pixel art, servie depuis public/decor/.
-    stage.style.backgroundImage = `url("${import.meta.env.BASE_URL}decor/arene.png")`;
-    const enemyFill = h('div', { className: 'hp__fill hp__fill--enemy' });
-    const enemyBar = h('div', { className: 'hp hp--enemy', 'aria-label': 'Vie du Gardien' }, enemyFill);
-    const hpFill = h('div', { className: 'hp__fill' });
-    const hp = h('div', { className: 'hp', 'aria-label': 'Vie' }, hpFill);
+    // Arène : décor, combattants, barres de vie et effets (src/screens/fight-fx.ts).
+    const arena = createArena(`${import.meta.env.BASE_URL}decor/arene.png`);
     const word = h('p', { className: 'word', 'aria-live': 'off' });
     const feedback = h('p', { className: 'feedback', role: 'status' }, ' ');
     const pauseSlot = h('div', { className: 'pause-slot' });
@@ -75,13 +71,16 @@ export const fightScreen: Screen = {
       },
       'Réécouter',
     );
-    const poseBar = h(
-      'div',
-      { className: 'pose-bar', 'aria-label': 'Poses de test' },
-      ...POSE_NAMES.map((pose) =>
-        h('button', { className: 'btn btn--small', onClick: () => player?.setPose(pose) }, pose),
-      ),
-    );
+    // Outil de développement uniquement : absent de la version publiée.
+    const poseBar = import.meta.env.DEV
+      ? h(
+          'div',
+          { className: 'pose-bar', 'aria-label': 'Poses de test' },
+          ...POSE_NAMES.map((pose) =>
+            h('button', { className: 'btn btn--small', onClick: () => player?.setPose(pose) }, pose),
+          ),
+        )
+      : null;
 
     root.append(
       h(
@@ -92,9 +91,7 @@ export const fightScreen: Screen = {
           { className: 'hud' },
           `COMBAT · ${TECHNIQUE_LABELS[settings.trainingTechnique]}${chosen ? ` · ${chosen.name}` : ''}`,
         ),
-        enemyBar,
-        stage,
-        hp,
+        arena.el,
         word,
         replay,
         feedback,
@@ -119,8 +116,8 @@ export const fightScreen: Screen = {
         h('span', { className: 'word__done' }, typed),
         h('span', { className: 'word__todo' }, shown ?? '_'.repeat(rest.length)),
       );
-      hpFill.style.width = `${(state.hp / state.maxHp) * 100}%`;
-      enemyFill.style.width = `${(enemyHp / ENEMY_MAX_HP) * 100}%`;
+      arena.setHp('hero', state.hp / state.maxHp);
+      arena.setHp('enemy', enemyHp / ENEMY_MAX_HP);
     }
 
     /** Passe au mot suivant de la liste et relance le délai de masquage éventuel. */
@@ -152,37 +149,41 @@ export const fightScreen: Screen = {
       else opponentPoseTimer = timer;
     }
 
-    /** Mouvement court sur le sprite : avancée, recul ou secousse (classes CSS). */
-    function motion(sprite: SpriteView | undefined, cls: 'lunge-right' | 'lunge-left' | 'shake'): void {
-      if (!sprite) return;
-      const el = sprite.el;
-      el.classList.remove('lunge-right', 'lunge-left', 'shake');
-      void el.offsetWidth; // relance l'animation si elle est déjà en cours
-      el.classList.add(cls);
-      window.setTimeout(() => el.classList.remove(cls), 320);
-    }
-
+    /** Traduit les événements du moteur en poses, mouvements et effets dans l'arène. */
     function animate(events: CombatEvent[]): void {
       for (const event of events) {
         if (event.type === 'hit') {
-          // Le héros avance et frappe ; l'ennemi encaisse.
-          flash(player, 'punch', 250, 'player');
-          motion(player, 'lunge-right');
-          flash(opponent, 'hit', 200, 'opponent');
-          motion(opponent, 'shake');
+          // Le héros avance et frappe ; l'adversaire encaisse.
+          flash(player, 'punch', 240, 'player');
+          arena.move('hero', 'lunge');
+          flash(opponent, 'hit', 220, 'opponent');
+          arena.move('enemy', 'recoil');
+          arena.struck('enemy');
+          arena.spark('enemy');
+          arena.damage('enemy', '-1');
         } else if (event.type === 'combo') {
-          flash(player, 'kick', 600, 'player');
-          motion(player, 'lunge-right');
+          flash(player, 'kick', 520, 'player');
+          arena.move('hero', 'dash');
+          arena.shake(true);
+          arena.banner('COMBO !', 'gold');
         } else if (event.type === 'word-done' && event.perfect) {
           flash(player, 'win', 700, 'player');
+          arena.move('hero', 'hop');
+          arena.banner('PERFECT !', 'gold');
         } else if (event.type === 'riposte') {
-          // L'ennemi bondit vers le héros, qui encaisse.
+          // L'adversaire bondit vers le héros, qui encaisse.
           flash(opponent, 'punch', 300, 'opponent');
-          motion(opponent, 'lunge-left');
+          arena.move('enemy', 'lunge');
           flash(player, 'hit', 300, 'player');
-          motion(player, 'shake');
+          arena.move('hero', 'recoil');
+          arena.struck('hero');
+          arena.spark('hero');
+          arena.damage('hero', `-${event.damage}`);
+          arena.shake();
         } else if (event.type === 'defeat') {
           flash(player, 'ko', 0, 'player');
+          arena.move('hero', 'fall');
+          arena.banner('K.O.', 'danger');
         }
       }
     }
@@ -249,15 +250,22 @@ export const fightScreen: Screen = {
       stats = accumulate(stats, step.events);
       announce(step.events);
       if (step.events.some((e) => e.type === 'defeat')) {
-        endFight('child-defeat', 0);
+        render();
+        endFight('child-defeat', 1200);
         return;
       }
       if (step.events.some((e) => e.type === 'hit')) {
         enemyHp = enemyAfterHit(enemyHp);
         if (enemyHp === 0) {
           feedback.textContent = 'Le Gardien est vaincu !';
+          render();
           flash(opponent, 'ko', 0, 'opponent');
-          endFight('victory', 900);
+          arena.move('enemy', 'fall');
+          flash(player, 'win', 1600, 'player');
+          arena.move('hero', 'hop');
+          arena.shake(true);
+          arena.banner('K.O. !', 'gold');
+          endFight('victory', 1500);
           return;
         }
       }
@@ -270,8 +278,11 @@ export const fightScreen: Screen = {
             wordsDone = 0;
           } else {
             feedback.textContent = 'La liste est finie : le Gardien gagne.';
-            flash(opponent, 'win', 0, 'opponent');
-            endFight('enemy-wins', 900);
+            render();
+            flash(opponent, 'win', 1600, 'opponent');
+            arena.move('enemy', 'hop');
+            arena.banner('FIN DE LISTE', 'info');
+            endFight('enemy-wins', 1500);
             return;
           }
         }
@@ -299,8 +310,9 @@ export const fightScreen: Screen = {
         player = createSpriteView(hero, 'idle');
         // L'ennemi fait face au héros, à gauche : son dessin regarde à droite, on le retourne.
         opponent = createSpriteView(enemy, 'idle', { flip: true });
-        stage.append(player.el, opponent.el);
-        status.textContent = `${hero.manifest.name} contre ${enemy.manifest.name}`;
+        arena.mount('hero', player.el, hero.manifest.name);
+        arena.mount('enemy', opponent.el, enemy.manifest.name);
+        status.textContent = '';
       })
       .catch((error: unknown) => {
         if (cancelled) return;
@@ -316,6 +328,7 @@ export const fightScreen: Screen = {
       window.clearTimeout(opponentPoseTimer);
       window.removeEventListener('keydown', onKeydown);
       stopSpeaking();
+      arena.destroy();
       player?.destroy();
       opponent?.destroy();
     };
