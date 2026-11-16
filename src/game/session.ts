@@ -64,6 +64,8 @@ export interface SessionResult {
   stats: SessionStats;
   unlocked: TechniqueId[];
   outcome: CombatOutcome;
+  /** Nom de l'adversaire affronté, pour le message de résultat. */
+  enemyName: string;
 }
 
 let lastSession: SessionResult | null = null;

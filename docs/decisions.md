@@ -211,3 +211,10 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
   - Réglage parent « Bruitages pendant le combat » (`kf.settings.soundEnabled`, `true` par défaut, ajout compatible sans changement de version).
   - Zoom de caméra bref sur les combos ; désactivé avec `prefers-reduced-motion`.
 - **Conséquences** : `docs/pedagogie.md` est amendé. En mode dictée, les bruitages sont coupés automatiquement pour ne pas couvrir la voix qui lit le mot (confirmé par l'humain).
+
+## D-032 — Adversaires et décors tirés au sort
+- **Date** : 2026-11-16
+- **Contexte** : demande de l'humain : de la variété d'un combat à l'autre.
+- **Décision** : un catalogue (`src/game/roster.ts`) liste adversaires et décors ; chaque combat en tire un de chaque, jamais le même deux fois de suite. Les messages utilisent le nom de l'adversaire tiré.
+- **Contenu de départ** : faute de nouveaux dessins, deux variantes recolorées du Gardien et deux ambiances du décor, produites par script. Elles ont les mêmes règles (20 points de vie) : seule l'apparence change.
+- **Suite possible** : de vrais nouveaux adversaires et décors, et des adversaires aux caractéristiques différentes (vie, riposte).

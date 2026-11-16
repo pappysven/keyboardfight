@@ -118,6 +118,16 @@ Code : `src/screens/fight-fx.ts` (structure et effets), `src/style.css` (section
 - **Règles** : tout reste dans l'arène ; les effets sont décoratifs (`aria-hidden`) et durent moins de 1,2 s ; `prefers-reduced-motion` supprime déplacements et secousses.
 - **Planches** : préparées par `scripts/process-sheet.py` (détourage sans liseré, contour sombre d'1 px, 28 couleurs).
 
+## Adversaires et décors : catalogue et tirage au sort
+
+- Catalogue : `src/game/roster.ts` (`ENEMY_IDS`, `DECOR_IDS`). Chaque combat tire un adversaire et un décor, différents du combat précédent.
+- Adversaires : `public/sprites/<id>/` (manifeste + planche, même format que le héros). Décors : `public/decor/<id>.png`.
+- Aujourd'hui : Gardien de nuit et Ogre de jade (originaux), Gardien de bronze et Gardien de givre (variantes recolorées) ; arène de nuit (originale), lueur chaude et brume (variantes), plage au coucher du soleil (originale).
+- Les variantes sont produites par `scripts/make-variants.py` à partir des originaux.
+- **Ajouter un adversaire** : générer une planche (grille 6 × 2, fond magenta uni), la traiter avec `scripts/process-sheet.py` (options `--bg`, `--fringe`, `--segment` : voir l'en-tête du script ; `--bg magenta-strict` si le personnage a du violet), créer `public/sprites/ennemi-<nom>/` avec son `manifest.json`, puis ajouter l'identifiant à `ENEMY_IDS`. Le `.gitignore` accepte `public/sprites/ennemi-*/`.
+- **Ajouter un décor** : déposer un PNG horizontal (environ 1024 × 256) dans `public/decor/`, puis ajouter son nom à `DECOR_IDS`.
+- Un test vérifie que chaque entrée du catalogue a bien ses fichiers.
+
 ## Placeholder
 
 Le personnage provisoire (`public/sprites/placeholder/`) est une planche PNG de rectangles colorés, générée une fois. Il sert à valider le chargeur, pas à montrer le graphisme définitif.

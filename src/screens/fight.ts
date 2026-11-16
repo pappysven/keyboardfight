@@ -17,6 +17,7 @@ import { createSfx } from '../audio/sfx';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 import { createArena } from './fight-fx';
+import { drawFight } from '../game/roster';
 
 const MAX_HP = 100;
 /** Mot de démonstration fictif, utilisé seulement sans liste de révision (AGENTS.md). */
@@ -57,7 +58,10 @@ export const fightScreen: Screen = {
 
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     // Arène : décor, combattants, barres de vie et effets (src/screens/fight-fx.ts).
-    const arena = createArena(`${import.meta.env.BASE_URL}decor/arene.png`);
+    // Adversaire et décor tirés au sort, différents du combat précédent (D-032).
+    const draw = drawFight();
+    let enemyName = 'Gardien';
+    const arena = createArena(`${import.meta.env.BASE_URL}decor/${draw.decorId}.png`);
     // En dictée, la voix lit le mot : pas de bruitages par-dessus (D-031).
     const sfx = createSfx(settings.soundEnabled && mode !== 'dictee');
     const word = h('p', { className: 'word', 'aria-live': 'off' });
@@ -245,7 +249,7 @@ export const fightScreen: Screen = {
           now,
         );
         saveProgression(store, progression);
-        setLastSession({ stats, unlocked, outcome });
+        setLastSession({ stats, unlocked, outcome, enemyName });
         navigate('resultat');
       }, delayMs);
     }
@@ -266,7 +270,7 @@ export const fightScreen: Screen = {
       if (step.events.some((e) => e.type === 'hit')) {
         enemyHp = enemyAfterHit(enemyHp);
         if (enemyHp === 0) {
-          feedback.textContent = 'Le Gardien est vaincu !';
+          feedback.textContent = `Le ${enemyName} est vaincu !`;
           render();
           flash(opponent, 'ko', 0, 'opponent');
           arena.move('enemy', 'fall');
@@ -287,7 +291,7 @@ export const fightScreen: Screen = {
             feedback.textContent = 'La liste recommence.';
             wordsDone = 0;
           } else {
-            feedback.textContent = 'La liste est finie : le Gardien gagne.';
+            feedback.textContent = `La liste est finie : le ${enemyName} gagne.`;
             render();
             flash(opponent, 'win', 1600, 'opponent');
             arena.move('enemy', 'hop');
@@ -313,7 +317,7 @@ export const fightScreen: Screen = {
 
     const base = import.meta.env.BASE_URL;
     const heroUrl = new URL(`${base}sprites/perso/manifest.json`, window.location.href);
-    const enemyUrl = new URL(`${base}sprites/ennemi/manifest.json`, window.location.href);
+    const enemyUrl = new URL(`${base}sprites/${draw.enemyId}/manifest.json`, window.location.href);
     Promise.all([loadManifest(heroUrl), loadManifest(enemyUrl)])
       .then(([hero, enemy]: [LoadedManifest, LoadedManifest]) => {
         if (cancelled) return;
@@ -322,6 +326,7 @@ export const fightScreen: Screen = {
         opponent = createSpriteView(enemy, 'idle', { flip: true });
         arena.mount('hero', player.el, hero.manifest.name);
         arena.mount('enemy', opponent.el, enemy.manifest.name);
+        enemyName = enemy.manifest.name;
         status.textContent = '';
       })
       .catch((error: unknown) => {
