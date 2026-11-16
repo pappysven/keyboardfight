@@ -19,6 +19,8 @@ export interface Arena {
   damage(side: Side, text: string): void;
   banner(text: string, tone: Tone): void;
   shake(strong?: boolean): void;
+  /** Zoom bref de la caméra sur les combattants (combo). */
+  zoom(): void;
   destroy(): void;
 }
 
@@ -63,22 +65,53 @@ export function createArena(backgroundUrl: string): Arena {
   const sprites: Partial<Record<Side, HTMLElement>> = {};
   const fx = h('div', { className: 'arena__fx', 'aria-hidden': 'true' });
   const bannerEl = h('div', { className: 'arena__banner', 'aria-hidden': 'true' });
+  // La « caméra » porte le décor, les combattants et les effets : c'est elle qui zoome.
+  // Les barres de vie et la bannière restent fixes.
+  const background = h('div', { className: 'arena__bg' });
+  background.style.backgroundImage = `url("${backgroundUrl}")`;
+  const camera = h(
+    'div',
+    { className: 'arena__cam' },
+    background,
+    h('div', { className: 'arena__stage' }, fighters.hero, fighters.enemy),
+    fx,
+  );
   const el = h(
     'div',
     { className: 'arena' },
+    camera,
     h('div', { className: 'arena__hud' }, bars.hero.root, h('span', { className: 'arena__vs', 'aria-hidden': 'true' }, 'VS'), bars.enemy.root),
-    h('div', { className: 'arena__stage' }, fighters.hero, fighters.enemy),
-    fx,
     bannerEl,
   );
-  el.style.backgroundImage = `url("${backgroundUrl}")`;
 
   /** (Re)joue une animation CSS portée par une classe. */
+  const pulses = new Map<string, number>();
+  let pulseIds = 0;
+  const ids = new WeakMap<HTMLElement, number>();
+
   function pulse(target: HTMLElement, cls: string, ms: number): void {
+    // Une relance annule le minuteur précédent : sinon il effacerait l'effet en cours.
+    let id = ids.get(target);
+    if (id === undefined) {
+      id = ++pulseIds;
+      ids.set(target, id);
+    }
+    const key = `${id}:${cls}`;
+    const previous = pulses.get(key);
+    if (previous !== undefined) {
+      window.clearTimeout(previous);
+      timers.delete(previous);
+    }
     target.classList.remove(cls);
     void target.offsetWidth;
     target.classList.add(cls);
-    later(() => target.classList.remove(cls), ms);
+    const timer = window.setTimeout(() => {
+      timers.delete(timer);
+      pulses.delete(key);
+      target.classList.remove(cls);
+    }, ms);
+    timers.add(timer);
+    pulses.set(key, timer);
   }
 
   function particle(className: string, text: string, ms: number): void {
@@ -125,6 +158,9 @@ export function createArena(backgroundUrl: string): Arena {
     },
     shake(strong = false) {
       pulse(el, strong ? 'shake-strong' : 'shake-soft', 260);
+    },
+    zoom() {
+      pulse(camera, 'zoom', 640);
     },
     destroy() {
       for (const id of timers) window.clearTimeout(id);

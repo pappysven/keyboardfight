@@ -9,7 +9,7 @@ Public : un enfant de 9 ans, TDAH. Objectif : apprendre à taper au clavier et r
 - **Précision avant vitesse** : un mot juste mais lent vaut mieux qu'un mot rapide et faux. Le PERFECT ne tient pas compte du temps.
 - **Pause proposée** : à la fin de la durée choisie, le jeu propose une pause. Elle n'est jamais imposée ni bloquante ; continuer ne retire rien.
 - **Aucune distraction pendant la saisie** :
-  - pas de notification, de pop-up, de son non demandé ;
+  - pas de notification ni de pop-up ; les bruitages du combat sont brefs (moins d'une seconde) et le parent peut les couper (D-031) ;
   - pas d'animation en dehors de l'arène de combat ;
   - le retour sur chaque touche reste court et visuel, dans l'arène ;
   - le focus ne quitte jamais la zone de saisie.

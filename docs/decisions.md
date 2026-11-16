@@ -202,3 +202,12 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Décision** : l'arène devient un composant à part (`src/screens/fight-fx.ts`) avec barres de vie intégrées, ombres, mouvements d'attaque et de recul, étincelles, dégâts flottants, bannières et secousse. Les planches sont retraitées (contour net, plus de liseré). La barre de poses de test n'apparaît plus qu'en développement.
 - **Garde-fous pédagogiques** : aucun effet hors de l'arène, rien de plus long que 1,2 s (hors fin de combat), aucun son, et respect de `prefers-reduced-motion`. Les règles du jeu ne changent pas.
 - **À surveiller** : si les effets distraient l'enfant pendant la saisie, prévoir un réglage parent « effets réduits ».
+
+## D-031 — Bruitages et zoom de caméra sur les combos
+- **Date** : 2026-11-16
+- **Contexte** : demande de l'humain : plus de sensation dans les combos, avec du son. La pédagogie interdisait jusque-là tout son non demandé.
+- **Décision** :
+  - Bruitages synthétisés par Web Audio (`src/audio/sfx.ts`) : aucun fichier, aucun réseau. Chaque son dure moins d'une seconde.
+  - Réglage parent « Bruitages pendant le combat » (`kf.settings.soundEnabled`, `true` par défaut, ajout compatible sans changement de version).
+  - Zoom de caméra bref sur les combos ; désactivé avec `prefers-reduced-motion`.
+- **Conséquences** : `docs/pedagogie.md` est amendé. En mode dictée, les bruitages peuvent se superposer à la voix : à écouter sur le Mac, et à couper pour la dictée si c'est gênant.

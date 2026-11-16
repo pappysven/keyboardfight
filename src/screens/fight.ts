@@ -13,6 +13,7 @@ import { loadProgression, saveProgression } from '../storage/progression-repo';
 import { loadBlockedWords } from '../storage/blocked-repo';
 import { loadRevisionLists } from '../storage/revision-repo';
 import { speak, stopSpeaking } from '../audio/speech';
+import { createSfx } from '../audio/sfx';
 import { createSpriteView, type SpriteView } from '../sprites/sprite';
 import { loadManifest, POSE_NAMES, type LoadedManifest } from '../sprites/manifest';
 import { createArena } from './fight-fx';
@@ -57,6 +58,7 @@ export const fightScreen: Screen = {
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     // Arène : décor, combattants, barres de vie et effets (src/screens/fight-fx.ts).
     const arena = createArena(`${import.meta.env.BASE_URL}decor/arene.png`);
+    const sfx = createSfx(settings.soundEnabled);
     const word = h('p', { className: 'word', 'aria-live': 'off' });
     const feedback = h('p', { className: 'feedback', role: 'status' }, ' ');
     const pauseSlot = h('div', { className: 'pause-slot' });
@@ -161,15 +163,19 @@ export const fightScreen: Screen = {
           arena.struck('enemy');
           arena.spark('enemy');
           arena.damage('enemy', '-1');
+          sfx.play('hit');
         } else if (event.type === 'combo') {
           flash(player, 'kick', 520, 'player');
           arena.move('hero', 'dash');
+          arena.zoom();
           arena.shake(true);
           arena.banner('COMBO !', 'gold');
+          sfx.play('combo');
         } else if (event.type === 'word-done' && event.perfect) {
           flash(player, 'win', 700, 'player');
           arena.move('hero', 'hop');
           arena.banner('PERFECT !', 'gold');
+          sfx.play('perfect');
         } else if (event.type === 'riposte') {
           // L'adversaire bondit vers le héros, qui encaisse.
           flash(opponent, 'punch', 300, 'opponent');
@@ -180,10 +186,12 @@ export const fightScreen: Screen = {
           arena.spark('hero');
           arena.damage('hero', `-${event.damage}`);
           arena.shake();
+          sfx.play('riposte');
         } else if (event.type === 'defeat') {
           flash(player, 'ko', 0, 'player');
           arena.move('hero', 'fall');
           arena.banner('K.O.', 'danger');
+          sfx.play('ko');
         }
       }
     }
@@ -265,6 +273,7 @@ export const fightScreen: Screen = {
           arena.move('hero', 'hop');
           arena.shake(true);
           arena.banner('K.O. !', 'gold');
+          sfx.play('victory');
           endFight('victory', 1500);
           return;
         }
@@ -329,6 +338,7 @@ export const fightScreen: Screen = {
       window.removeEventListener('keydown', onKeydown);
       stopSpeaking();
       arena.destroy();
+      sfx.close();
       player?.destroy();
       opponent?.destroy();
     };

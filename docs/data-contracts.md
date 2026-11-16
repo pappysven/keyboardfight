@@ -51,12 +51,14 @@ Les types sont dans `src/data/types.ts`. Ce fichier est la référence de code ;
     "proposePause": true,
     "parentCode": null,
     "defaultListId": null,
-    "trainingTechnique": "repos"
+    "trainingTechnique": "repos",
+    "soundEnabled": true
   }
 }
 ```
 
 - `difficulty` : `"facile"` | `"moyen"` | `"difficile"` (plancher de vie, voir docs/pedagogie.md).
+- `soundEnabled` : bruitages du combat, `true` par défaut ; une donnée sans ce champ se lit comme `true` (D-031).
 - `trainingTechnique` : étape travaillée (`TechniqueId`), `"repos"` par défaut (D-028).
 - `defaultListId` : identifiant de la liste jouée par défaut (`null` = la première). Champ ajouté sans changer la version : une donnée sans ce champ se lit comme `null` (D-026).
 - `sessionMinutes` : `5` | `10`.
