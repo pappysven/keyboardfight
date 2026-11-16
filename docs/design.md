@@ -103,7 +103,7 @@ Un personnage basé sur une personne réelle **ne va jamais dans le dépôt**. L
 - Planche : `sheet.png`, 12 cadres de 48 × 48 px en une ligne (576 × 48), fond transparent.
 - Ordre des cadres : idle ×2, punch ×2, kick ×2, special ×2, hit, win ×2, ko.
 - Personnage original, généré à partir d'une description. Ce n'est pas une personne réelle.
-- Le nom affiché (« Héros (provisoire) ») reste à choisir.
+- Nom affiché : « Lumi » (nom inventé, sans lien avec une personne).
 
 ## Placeholder
 
