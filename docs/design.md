@@ -81,15 +81,16 @@ Une incohérence provoque une erreur précise à l'exécution (`ManifestError`),
 
 ### Sens des poses
 
-| Pose | Quand |
-|---|---|
-| `idle` | Repos, en attente de la saisie. |
-| `punch` | Bonne touche : coup de poing. |
-| `kick` | Bonne touche avec combo : coup de pied. |
-| `special` | Combo complet ou PERFECT. |
-| `hit` | L'enfant reçoit une riposte. |
-| `win` | Victoire du combat. |
-| `ko` | KO (adversaire ou enfant, selon le camp). |
+Implémenté dans `src/screens/fight.ts` (fonction `animate`).
+
+| Pose | Quand | Durée |
+|---|---|---|
+| `idle` | Repos, en attente de la saisie. Retour après chaque pose courte. | — |
+| `punch` | Bonne touche : le personnage frappe. Après une faute : l'adversaire riposte. | 250 ms (personnage) / 300 ms (adversaire) |
+| `special` | Combo : bonnes touches rapides d'affilée. | 600 ms |
+| `hit` | Riposte : le personnage est touché. | 300 ms |
+| `ko` | Défaite : le personnage reste au KO. | jusqu'à la fin |
+| `kick`, `win` | Pas encore branchées (victoire et coups de pied : lot suivant). | — |
 
 ### Sprites privés
 
