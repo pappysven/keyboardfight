@@ -1,9 +1,17 @@
 """Prépare une planche de sprites à partir d'une image générée (grille 6 x 2).
 
 Détourage sans liseré, débris retirés, palette resserrée, contour sombre d'1 px.
-Usage : python3 scripts/process-sheet.py <dossier des images sources>
-Dépendance : Pillow. Les sources ne sont pas dans le dépôt. Voir docs/design.md.
+Usage :
+  python3 scripts/process-sheet.py SOURCE SORTIE.png --bg grey|magenta|magenta-strict
+         [--fringe] [--only-body] [--segment]
+  --bg magenta-strict : fond magenta franc, pour un personnage dont l'armure est violette.
+  --fringe            : rogne les pixels de bord teintés par le fond.
+  --only-body         : ne garde que la silhouette principale (retire étincelles et débris).
+  --segment           : découpe chaque pose d'après sa silhouette (au lieu d'une grille
+                        régulière), utile quand une pose déborde de sa case.
+Dépendance : Pillow. Les images sources ne sont pas dans le dépôt. Voir docs/design.md.
 """
+import argparse
 import sys
 from PIL import Image
 FRAME, COLS, ROWS = 48, 6, 2
@@ -15,6 +23,52 @@ def bg_grey(c):
 def bg_magenta(c):
     r, g, b = c
     return r > 110 and b > 110 and g < 0.5 * min(r, b)
+
+def bg_magenta_strict(c):
+    # Magenta franc seulement : un violet d'armure (r ~ 135) n'est jamais touché.
+    r, g, b = c
+    return r > 180 and b > 180 and g < 0.5 * min(r, b)
+
+def fringe_magenta_strict(c):
+    r, g, b = c
+    return r > 150 and b > 150 and r - g > 60 and b - g > 60
+
+def runs(flags, min_gap):
+    """Plages consécutives de True, fusionnées si séparées de moins de min_gap."""
+    out = []
+    for i, f in enumerate(flags):
+        if not f: continue
+        if out and i - out[-1][1] <= min_gap: out[-1][1] = i + 1
+        else: out.append([i, i + 1])
+    return out
+
+def segment_boxes(im, is_bg, cols, rows):
+    """Une boîte par pose : lignes séparées par une bande vide, poses par plages de colonnes."""
+    W, H = im.size; px = im.load()
+    fg = [[0 if is_bg(px[x, y]) else 1 for x in range(W)] for y in range(H)]
+    row_runs = runs([any(r) for r in fg], 12)
+    row_runs = [r for r in row_runs if r[1] - r[0] > 8]
+    if len(row_runs) != rows:
+        sys.exit(f'--segment : {len(row_runs)} lignes détectées, {rows} attendues')
+    boxes = []
+    for y0, y1 in row_runs:
+        col_runs = runs([any(fg[y][x] for y in range(y0, y1)) for x in range(W)], 6)
+        col_runs = [c for c in col_runs if c[1] - c[0] > 8]
+        if len(col_runs) == cols:
+            boxes += [(max(0, x0 - 2), y0, min(W, x1 + 2), y1) for x0, x1 in col_runs]
+            continue
+        # Poses qui se touchent : on coupe, près de chaque limite régulière, à la colonne la plus vide.
+        left, right = col_runs[0][0], col_runs[-1][1]
+        step = (right - left) / cols
+        count = [sum(fg[y][x] for y in range(y0, y1)) for x in range(W)]
+        cuts = [left]
+        for k in range(1, cols):
+            target = round(left + k * step)
+            lo, hi = max(cuts[-1] + 20, target - 35), min(W - 1, target + 35)
+            cuts.append(min(range(lo, hi + 1), key=lambda x: (count[x], abs(x - target))))
+        cuts.append(right)
+        boxes += [(cuts[i], y0, cuts[i + 1], y1) for i in range(cols)]
+    return boxes
 
 def fringe_magenta(c):
     # Pixel de bord mélangé au fond magenta : rouge et bleu nettement au-dessus du vert.
@@ -51,13 +105,16 @@ def components(mask, w, h):
         out.append(comp)
     return out
 
-def process(src, dst, is_bg, is_fringe=None, only_body=False):
+def process(src, dst, is_bg, is_fringe=None, only_body=False, segment=False):
     im = Image.open(src).convert('RGB'); W, H = im.size
     cw, ch = W / COLS, H / ROWS
+    if segment:
+        boxes = segment_boxes(im, is_bg, COLS, ROWS)
+    else:
+        boxes = [(int(c*cw), int(r*ch), int((c+1)*cw), int((r+1)*ch)) for r in range(ROWS) for c in range(COLS)]
     cells = []
-    for r in range(ROWS):
-        for c in range(COLS):
-            box = (int(c*cw), int(r*ch), int((c+1)*cw), int((r+1)*ch))
+    for box in boxes:
+        if True:
             cell = im.crop(box); w, h = cell.size; px = cell.load()
             mask = bytearray(0 if is_bg(px[x, y]) else 1 for y in range(h) for x in range(w))
             if is_fringe: peel(mask, px, w, h, is_fringe)
@@ -100,5 +157,18 @@ def process(src, dst, is_bg, is_fringe=None, only_body=False):
     prev.resize((sheet.size[0]*4, sheet.size[1]*4), Image.NEAREST).save(dst.replace('.png', '_preview.png'))
     print('ok', dst, 'scale', round(scale, 3))
 
-process(sys.argv[1] + '/1.webp', 'hero2.png', bg_grey)
-process(sys.argv[1] + '/2.png', 'enemy2.png', bg_magenta, fringe_magenta, only_body=True)
+BACKGROUNDS = {
+    'grey': (bg_grey, None),
+    'magenta': (bg_magenta, fringe_magenta),
+    'magenta-strict': (bg_magenta_strict, fringe_magenta_strict),
+}
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser(description='Prépare une planche de sprites 12 cadres de 48 px.')
+    ap.add_argument('source'); ap.add_argument('sortie')
+    ap.add_argument('--bg', choices=BACKGROUNDS, required=True)
+    ap.add_argument('--fringe', action='store_true'); ap.add_argument('--only-body', action='store_true')
+    ap.add_argument('--segment', action='store_true')
+    a = ap.parse_args()
+    bg, fringe = BACKGROUNDS[a.bg]
+    process(a.source, a.sortie, bg, fringe if a.fringe else None, a.only_body, a.segment)

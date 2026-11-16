@@ -4,7 +4,7 @@
  */
 
 /** Dossiers de public/sprites/ contenant un manifest.json d'adversaire. */
-export const ENEMY_IDS: readonly string[] = ['ennemi', 'ennemi-bronze', 'ennemi-givre'];
+export const ENEMY_IDS: readonly string[] = ['ennemi', 'ennemi-bronze', 'ennemi-givre', 'ennemi-jade'];
 
 /** Fichiers de public/decor/ (sans l'extension .png). */
 export const DECOR_IDS: readonly string[] = ['arene', 'arene-aube', 'arene-brume', 'plage'];
