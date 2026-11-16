@@ -37,6 +37,8 @@ export interface Settings {
   sessionMinutes: 5 | 10;
   proposePause: boolean;
   parentCode: ParentCode | null;
+  /** Liste jouée par défaut, mémorisée entre deux visites. Absente = null. */
+  defaultListId: string | null;
 }
 
 export interface SessionRecord {

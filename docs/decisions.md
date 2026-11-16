@@ -160,3 +160,16 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
 - **Décision** (`src/audio/speech.ts`) : la lecture passe par la synthèse vocale du navigateur, en `fr-FR`, avec une voix française installée si elle existe. Le mot est lu au début de chaque mot et sur demande (« Réécouter »). La lecture s'arrête en quittant l'écran.
 - **Conséquences** : sur Safari macOS, les voix sont celles du système : la lecture est locale. Aucun enregistrement à gérer. Si la synthèse n'est pas disponible, la dictée reste jouable sans son (le bouton ne fait rien).
 - **Question ouverte** : le choix de la voix (qualité, voix française disponible sur le Mac) reste à vérifier sur la machine réelle.
+
+## D-025 — Choix de la liste à jouer : sur l'accueil, en mémoire
+- **Date** : 2026-11-16
+- **Contexte** : le combat jouait toujours la première liste. Il faut pouvoir choisir.
+- **Décision** : l'accueil affiche une puce par liste (« Liste à jouer »). Le choix est gardé en mémoire (`src/game/selection.ts`) et n'est pas enregistré : au rechargement de la page, la première liste revient. Si la liste choisie a été supprimée, on retombe sur la première. Sans liste, le mot de démonstration sert.
+- **Conséquences** : le titre du combat affiche le nom de la liste jouée. Une préférence persistante (liste par défaut) pourra venir avec l'espace parent si le besoin se confirme.
+
+## D-026 — Liste par défaut mémorisée dans kf.settings
+- **Date** : 2026-11-16
+- **Contexte** : D-025 gardait le choix en mémoire seulement. Le parent a dit oui à une mémorisation entre deux visites.
+- **Décision** : `defaultListId` rejoint `kf.settings`. Choisir une liste sur l'accueil l'enregistre. Le combat joue la liste choisie pendant la visite, sinon la liste par défaut, sinon la première.
+- **Schéma** : ajout compatible, donc `schemaVersion` reste à 1. Une donnée sans le champ se lit comme `null`. Les tests couvrent les deux cas.
+- **Conséquences** : si la liste par défaut est supprimée, on retombe sur la première, sans erreur.

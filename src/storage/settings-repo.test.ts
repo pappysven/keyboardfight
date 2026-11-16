@@ -15,6 +15,24 @@ describe('réglages', () => {
     expect(loadSettings(store)).toEqual(next);
   });
 
+  it('mémorise la liste par défaut entre deux lectures', () => {
+    const store = new Store(createMemoryBackend());
+    saveSettings(store, { ...DEFAULT_SETTINGS, defaultListId: 'l-42' });
+    expect(loadSettings(store).defaultListId).toBe('l-42');
+  });
+
+  it('une ancienne donnée sans defaultListId vaut null, sans erreur', () => {
+    const backend = createMemoryBackend();
+    backend.setItem(
+      `kf.${SETTINGS_KEY}`,
+      JSON.stringify({
+        schemaVersion: 1,
+        data: { difficulty: 'facile', sessionMinutes: 5, proposePause: true, parentCode: null },
+      }),
+    );
+    expect(loadSettings(new Store(backend)).defaultListId).toBeNull();
+  });
+
   it('rejette une difficulté ou une durée inconnue', () => {
     expect(() => parseSettings({ ...DEFAULT_SETTINGS, difficulty: 'impossible' })).toThrow(/difficulty/);
     expect(() => parseSettings({ ...DEFAULT_SETTINGS, sessionMinutes: 7 })).toThrow(/sessionMinutes/);
