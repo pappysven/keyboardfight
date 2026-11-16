@@ -16,6 +16,25 @@ def bg_magenta(c):
     r, g, b = c
     return r > 110 and b > 110 and g < 0.5 * min(r, b)
 
+def fringe_magenta(c):
+    # Pixel de bord mélangé au fond magenta : rouge et bleu nettement au-dessus du vert.
+    r, g, b = c
+    return r - g > 40 and b - g > 40
+
+def peel(mask, px, w, h, is_fringe, rounds=4):
+    """Rogne, depuis le fond, les pixels de bord teintés par la couleur de fond."""
+    for _ in range(rounds):
+        drop = []
+        for y in range(h):
+            for x in range(w):
+                p = y * w + x
+                if not mask[p] or not is_fringe(px[x, y]): continue
+                for nx, ny in ((x+1,y),(x-1,y),(x,y+1),(x,y-1)):
+                    if not (0 <= nx < w and 0 <= ny < h) or not mask[ny * w + nx]:
+                        drop.append(p); break
+        if not drop: break
+        for p in drop: mask[p] = 0
+
 def components(mask, w, h):
     seen = bytearray(w * h); out = []
     for start in range(w * h):
@@ -32,7 +51,7 @@ def components(mask, w, h):
         out.append(comp)
     return out
 
-def process(src, dst, is_bg):
+def process(src, dst, is_bg, is_fringe=None, only_body=False):
     im = Image.open(src).convert('RGB'); W, H = im.size
     cw, ch = W / COLS, H / ROWS
     cells = []
@@ -41,11 +60,13 @@ def process(src, dst, is_bg):
             box = (int(c*cw), int(r*ch), int((c+1)*cw), int((r+1)*ch))
             cell = im.crop(box); w, h = cell.size; px = cell.load()
             mask = bytearray(0 if is_bg(px[x, y]) else 1 for y in range(h) for x in range(w))
+            if is_fringe: peel(mask, px, w, h, is_fringe)
             comps = components(mask, w, h)
             big = max(len(k) for k in comps)
             for k in comps:
                 touches = any(p % w in (0, w-1) or p // w in (0, h-1) for p in k)
-                if len(k) < 6 or (touches and len(k) < 0.15 * big):
+                # only_body : on ne garde que la silhouette principale (ni étincelles, ni ombre).
+                if len(k) < 6 or (touches and len(k) < 0.15 * big) or (only_body and len(k) < big):
                     for p in k: mask[p] = 0
             alpha = Image.frombytes('L', (w, h), bytes(v * 255 for v in mask))
             rgba = cell.convert('RGBA'); rgba.putalpha(alpha)
@@ -80,4 +101,4 @@ def process(src, dst, is_bg):
     print('ok', dst, 'scale', round(scale, 3))
 
 process(sys.argv[1] + '/1.webp', 'hero2.png', bg_grey)
-process(sys.argv[1] + '/2.png', 'enemy2.png', bg_magenta)
+process(sys.argv[1] + '/2.png', 'enemy2.png', bg_magenta, fringe_magenta, only_body=True)

@@ -41,6 +41,8 @@ export interface Settings {
   defaultListId: string | null;
   /** Étape travaillée : celle qui reçoit les sessions. Absente = 'repos'. */
   trainingTechnique: TechniqueId;
+  /** Bruitages du combat. Absent = true. */
+  soundEnabled: boolean;
 }
 
 export interface SessionRecord {

@@ -197,6 +197,17 @@ export const parentScreen: Screen = {
           }),
           h('span', {}, 'Proposer une pause à la fin de la session'),
         ),
+        h(
+          'label',
+          { className: 'toggle' },
+          h('input', {
+            type: 'checkbox',
+            checked: settings.soundEnabled,
+            onChange: (e: Event) =>
+              updateSettings({ ...settings, soundEnabled: (e.target as HTMLInputElement).checked }),
+          }),
+          h('span', {}, 'Bruitages pendant le combat'),
+        ),
       );
     }
 

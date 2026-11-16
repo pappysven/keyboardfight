@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: Settings = {
   parentCode: null,
   defaultListId: null,
   trainingTechnique: 'repos',
+  soundEnabled: true,
 };
 
 const DIFFICULTIES: readonly Difficulty[] = ['facile', 'moyen', 'difficile'];
@@ -58,6 +59,7 @@ export function parseSettings(raw: unknown): Settings {
     // Champ ajouté après coup : absent dans les données anciennes, donc null.
     defaultListId: typeof s.defaultListId === 'string' ? s.defaultListId : null,
     trainingTechnique: parseTechniqueId(s.trainingTechnique),
+    soundEnabled: typeof s.soundEnabled === 'boolean' ? s.soundEnabled : true,
   };
 }
 
@@ -73,5 +75,6 @@ export function saveSettings(store: Store, settings: Settings): boolean {
     parentCode: settings.parentCode,
     defaultListId: settings.defaultListId,
     trainingTechnique: settings.trainingTechnique,
+    soundEnabled: settings.soundEnabled,
   });
 }
