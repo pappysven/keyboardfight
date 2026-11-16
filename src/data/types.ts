@@ -39,6 +39,8 @@ export interface Settings {
   parentCode: ParentCode | null;
   /** Liste jouée par défaut, mémorisée entre deux visites. Absente = null. */
   defaultListId: string | null;
+  /** Étape travaillée : celle qui reçoit les sessions. Absente = 'repos'. */
+  trainingTechnique: TechniqueId;
 }
 
 export interface SessionRecord {

@@ -97,6 +97,14 @@ Implémenté dans `src/screens/fight.ts` (fonction `animate`).
 
 Un personnage basé sur une personne réelle **ne va jamais dans le dépôt**. Le `.gitignore` exclut `public/sprites/*` sauf `placeholder/`. Voir docs/decisions.md (D-007).
 
+## Personnage « perso » (public)
+
+- Dossier : `public/sprites/perso/` (suivi par git, déployé sur le site).
+- Planche : `sheet.png`, 12 cadres de 48 × 48 px en une ligne (576 × 48), fond transparent.
+- Ordre des cadres : idle ×2, punch ×2, kick ×2, special ×2, hit, win ×2, ko.
+- Personnage original, généré à partir d'une description. Ce n'est pas une personne réelle.
+- Le nom affiché (« Héros (provisoire) ») reste à choisir.
+
 ## Placeholder
 
 Le personnage provisoire (`public/sprites/placeholder/`) est une planche PNG de rectangles colorés, générée une fois. Il sert à valider le chargeur, pas à montrer le graphisme définitif.

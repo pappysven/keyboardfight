@@ -1,4 +1,5 @@
-import type { Difficulty, ParentCode, Settings } from '../data/types';
+import type { Difficulty, ParentCode, Settings, TechniqueId } from '../data/types';
+import { TECHNIQUE_IDS } from '../game/progression';
 import type { Store } from './store';
 
 /** Clé de stockage : kf.settings (docs/data-contracts.md). */
@@ -11,6 +12,7 @@ export const DEFAULT_SETTINGS: Settings = {
   proposePause: true,
   parentCode: null,
   defaultListId: null,
+  trainingTechnique: 'repos',
 };
 
 const DIFFICULTIES: readonly Difficulty[] = ['facile', 'moyen', 'difficile'];
@@ -31,6 +33,12 @@ function parseParentCode(value: unknown): ParentCode | null {
   return { algo: 'PBKDF2-SHA256', iterations: p.iterations, salt: p.salt as string, hash: p.hash as string };
 }
 
+function parseTechniqueId(value: unknown): TechniqueId {
+  if (value === undefined) return 'repos';
+  if (!TECHNIQUE_IDS.includes(value as TechniqueId)) fail('trainingTechnique');
+  return value as TechniqueId;
+}
+
 /** Valide les données brutes (sans l'enveloppe) et les renvoie typées. */
 export function parseSettings(raw: unknown): Settings {
   if (typeof raw !== 'object' || raw === null) fail('data');
@@ -49,6 +57,7 @@ export function parseSettings(raw: unknown): Settings {
     parentCode: parseParentCode(s.parentCode),
     // Champ ajouté après coup : absent dans les données anciennes, donc null.
     defaultListId: typeof s.defaultListId === 'string' ? s.defaultListId : null,
+    trainingTechnique: parseTechniqueId(s.trainingTechnique),
   };
 }
 
@@ -63,5 +72,6 @@ export function saveSettings(store: Store, settings: Settings): boolean {
     proposePause: settings.proposePause,
     parentCode: settings.parentCode,
     defaultListId: settings.defaultListId,
+    trainingTechnique: settings.trainingTechnique,
   });
 }

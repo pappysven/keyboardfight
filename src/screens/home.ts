@@ -5,12 +5,16 @@ import { DISPLAY_LABELS } from '../game/revision';
 import { createAppStore } from '../storage/store';
 import { loadRevisionLists } from '../storage/revision-repo';
 import { loadSettings, saveSettings } from '../storage/settings-repo';
+import { loadProgression } from '../storage/progression-repo';
+import { TECHNIQUE_IDS, TECHNIQUE_LABELS } from '../game/progression';
 
 export const homeScreen: Screen = {
   mount(root, navigate) {
     const store = createAppStore();
     const lists = loadRevisionLists(store);
     const settings = loadSettings(store);
+    const progression = loadProgression(store, new Date().toISOString());
+    const unlockedSteps = TECHNIQUE_IDS.filter((id) => progression.techniques[id].unlockedAt !== null);
 
     function render(): void {
       const current = activeList(lists, settings.defaultListId);
@@ -20,6 +24,30 @@ export const homeScreen: Screen = {
           { className: 'screen screen--home' },
           h('h1', { className: 'title' }, 'KeyboardFight'),
           h('p', { className: 'lead' }, 'Tape juste, puis frappe fort.'),
+          h(
+            'section',
+            { className: 'panel-section', 'aria-labelledby': 'h-step' },
+            h('h2', { className: 'section-title', id: 'h-step' }, 'Étape à travailler'),
+            h(
+              'div',
+              { className: 'chips' },
+              ...unlockedSteps.map((id) =>
+                h(
+                  'button',
+                  {
+                    className: 'btn btn--small',
+                    'aria-pressed': String(settings.trainingTechnique === id),
+                    onClick: () => {
+                      settings.trainingTechnique = id;
+                      saveSettings(store, settings);
+                      render();
+                    },
+                  },
+                  TECHNIQUE_LABELS[id],
+                ),
+              ),
+            ),
+          ),
           lists.length > 0
             ? h(
                 'section',
