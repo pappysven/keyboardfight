@@ -210,4 +210,4 @@ Une décision remplacée n'est pas effacée : on ajoute une nouvelle entrée qui
   - Bruitages synthétisés par Web Audio (`src/audio/sfx.ts`) : aucun fichier, aucun réseau. Chaque son dure moins d'une seconde.
   - Réglage parent « Bruitages pendant le combat » (`kf.settings.soundEnabled`, `true` par défaut, ajout compatible sans changement de version).
   - Zoom de caméra bref sur les combos ; désactivé avec `prefers-reduced-motion`.
-- **Conséquences** : `docs/pedagogie.md` est amendé. En mode dictée, les bruitages peuvent se superposer à la voix : à écouter sur le Mac, et à couper pour la dictée si c'est gênant.
+- **Conséquences** : `docs/pedagogie.md` est amendé. En mode dictée, les bruitages sont coupés automatiquement pour ne pas couvrir la voix qui lit le mot (confirmé par l'humain).

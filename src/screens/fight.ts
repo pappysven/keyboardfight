@@ -58,7 +58,8 @@ export const fightScreen: Screen = {
     const status = h('p', { className: 'status', role: 'status' }, 'Chargement du personnage…');
     // Arène : décor, combattants, barres de vie et effets (src/screens/fight-fx.ts).
     const arena = createArena(`${import.meta.env.BASE_URL}decor/arene.png`);
-    const sfx = createSfx(settings.soundEnabled);
+    // En dictée, la voix lit le mot : pas de bruitages par-dessus (D-031).
+    const sfx = createSfx(settings.soundEnabled && mode !== 'dictee');
     const word = h('p', { className: 'word', 'aria-live': 'off' });
     const feedback = h('p', { className: 'feedback', role: 'status' }, ' ');
     const pauseSlot = h('div', { className: 'pause-slot' });

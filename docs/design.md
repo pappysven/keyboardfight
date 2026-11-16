@@ -114,7 +114,7 @@ Code : `src/screens/fight-fx.ts` (structure et effets), `src/style.css` (section
 - **Mouvements** : entrée en scène, fente (coup), ruée sautée (combo), recul (coup reçu), saut (PERFECT, victoire), chute (K.O.).
 - **Effets** : flash blanc du sprite touché, étincelle d'impact, dégâts flottants, bannières « COMBO ! », « PERFECT ! », « K.O. », secousse de l'arène.
 - **Caméra** : sur un combo, le décor, les combattants et les effets zooment brièvement (×1,38, 640 ms) ; les barres de vie et la bannière restent fixes.
-- **Bruitages** : synthétisés dans le navigateur (`src/audio/sfx.ts`), sans fichier son : coup, riposte, combo, PERFECT, K.O., victoire.
+- **Bruitages** : synthétisés dans le navigateur (`src/audio/sfx.ts`), sans fichier son : coup, riposte, combo, PERFECT, K.O., victoire. Coupés en mode dictée.
 - **Règles** : tout reste dans l'arène ; les effets sont décoratifs (`aria-hidden`) et durent moins de 1,2 s ; `prefers-reduced-motion` supprime déplacements et secousses.
 - **Planches** : préparées par `scripts/process-sheet.py` (détourage sans liseré, contour sombre d'1 px, 28 couleurs).
 
